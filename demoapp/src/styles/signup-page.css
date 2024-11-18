@@ -1,0 +1,151 @@
+/* Styles for autofill in the Browser so it doesn't look stupidly white */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0px 1000px transparent inset !important; /* Background color of the input */
+    -webkit-text-fill-color: goldenrod !important; /* Text color */
+    transition: background-color 5000s ease-in-out 0s; /* Prevents flash */
+}
+
+body {
+    background: linear-gradient(63deg, #e6c90a, #d18a10, #d1b21a);
+    font-family: Tahoma, sans-serif;
+}
+
+.login-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 450px;
+    padding: 45px;
+    margin: 20px auto;
+    transform: translate(-50%, -55%);
+    background: rgba(0, 0, 0, .9);
+    box-sizing: border-box;
+    box-shadow: 0 15px 25px rgba(0, 0, 0, .6);
+    border-radius: 10px;
+}
+
+.login-box p:first-child {
+    margin: 0 0 30px;
+    padding: 0;
+    color: #fff;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    letter-spacing: 3px;
+}
+
+.login-box .user-box {
+    position: relative;
+}
+
+.login-box .user-box input {
+    width: 100%;
+    padding: 15px 0;
+    font-size: 20px;
+    color: goldenrod;
+    margin-bottom: 30px;
+    border: none;
+    border-bottom: 1px solid #fff;
+    outline: none;
+    background: transparent;
+}
+
+.login-box .user-box label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 10px 0;
+    font-size: 20px;
+    color: #fff;
+    pointer-events: none;
+    transition: .5s;
+}
+
+
+ .login-box .submit-button {
+    display: inline-block;
+    padding: 10px 20px;
+    font-weight: bold;
+    font-size: 16px;
+    color: #fff;
+    background-color: goldenrod;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background-color 0.3s;
+}
+
+.login-box .submit-button:hover {
+    background-color: #d18a10;
+}
+
+.login-box p:last-child {
+    color: #aaa;
+    font-size: 14px;
+}
+
+.login-box a.a2 {
+    color: goldenrod;
+    text-decoration: none;
+}
+
+.login-box a.a2:hover {
+    color: #aaa;
+}
+/* From Uiverse.io by joe-watson-sbf */
+.btn {
+    font-size: 17px;
+    background: transparent;
+    border: none;
+    padding: 1em 1.5em;
+    color: #ffedd3;
+    text-transform: uppercase;
+    position: relative;
+    transition: 0.5s ease;
+    cursor: pointer;
+}
+
+.btn::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 0;
+    background-color: #ffc506;
+    transition: 0.5s ease;
+}
+
+.btn:hover {
+    color: #1e1e2b;
+    transition-delay: 0.2s;
+    font-size:1.2rem;
+    font-weight:bold;
+}
+
+.btn:hover::before {
+    width: 100%;
+}
+
+.btn::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 0;
+    width: 100%;
+    background-color: #ffc506;
+    transition: 0.2s ease;
+    z-index: -1;
+}
+
+.btn:hover::after {
+    height: 100%;
+    transition-delay: 0.2s;
+    color: aliceblue;
+}
+
