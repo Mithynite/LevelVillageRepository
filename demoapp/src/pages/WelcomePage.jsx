@@ -6,6 +6,11 @@ const WelcomePage = () => {
     return (
         <div>
 
+            <div>
+                
+            </div>
+
+
         </div>
     );
 };
