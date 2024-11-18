@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import '../styles/login-page.css';
+import { loginUser } from '../api/authService';
+import '../styles/common-style.css';
+import {useNavigate} from "react-router-dom";
 
 
 const LoginPage = () => {
@@ -9,21 +9,15 @@ const LoginPage = () => {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        console.log('Form submitted with:', { username, password }); // Debugging line
+    const handleLogin = async (event) => {
+        event.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8080/api/login', {
-                username,
-                password,
-            });
-            console.log('Response:', response); // Debugging line
-            if (response.status === 200) {
-                navigate('/dashboard');
-            }
+            await loginUser({ username, password });
+            alert('Logged in successfully!');
+            navigate('/dashboard');
         } catch (error) {
             console.error('Login failed:', error);
-            alert('Login failed: ' + error.message); // User feedback
+            alert('Invalid username or password');
         }
     };
 
@@ -33,12 +27,14 @@ const LoginPage = () => {
             <p>Login</p>
             <form onSubmit={handleLogin}>
                 <div className="user-box">
-                    <input name="username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} required/>
-                    <label>Email</label>
+                    <input name="username" type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)}
+                           required/>
+
                 </div>
                 <div className="user-box">
-                    <input name="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required/>
-                    <label>Password</label>
+
+                    <input name="password" type="password" placeholder="Password" value={password}
+                           onChange={(e) => setPassword(e.target.value)} required/>
                 </div>
                 <button type="submit" className="btn">
                 Submit
