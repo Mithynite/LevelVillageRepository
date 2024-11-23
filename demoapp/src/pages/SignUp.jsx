@@ -9,16 +9,27 @@ const SignUpPage = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const navigate = useNavigate();
+    const [errorMessage, setErrorMessage] = useState(''); // Error message state
 
     const handleSignUp = async (event) => {
         event.preventDefault();
+
+        // Password confirmation check
+        if (password !== confirmPassword) {
+            setErrorMessage('Passwords do not match!');
+            return;
+        }
+
         try {
             await registerUser({ username, email, password });
             alert('User registered successfully!');
-            navigate('/dashboard');
+            setErrorMessage(''); // Clear error message if any
+            navigate('/login'); // Redirect to the dashboard after signup
         } catch (error) {
             console.error('Signup failed:', error);
-            alert('Failed to register. Please try again.');
+            setErrorMessage(
+                error?.response?.data?.message || 'Failed to register. Please try again.'
+            );
         }
     };
 
@@ -64,6 +75,11 @@ const SignUpPage = () => {
                         required
                     />
                 </div>
+                {errorMessage && (
+                    <p style={{ color: 'red', fontSize: '0.9em', textAlign: 'center' }}>
+                        {errorMessage}
+                    </p>
+                )}
                 <button type="submit" className="btn">
                     Submit
                 </button>

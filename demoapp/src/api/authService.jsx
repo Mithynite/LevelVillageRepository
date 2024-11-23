@@ -32,26 +32,25 @@ export const loginUser = async (userData) => {
     }
 };
 
-/**
- * Get the JWT token from localStorage
- */
-export const getAuthToken = () => {
-    return localStorage.getItem('authToken');
+// Attach JWT token to all authenticated requests
+export const getAuthHeaders = () => {
+    const token = localStorage.getItem('JWTAuthToken');
+    return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
-/**
- * Set the Authorization header for authenticated requests
- */
-export const setAuthHeader = () => {
-    const token = getAuthToken();
-
-    if (token) {
-        return {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        };
+// Example: Fetch protected data
+export const fetchProtectedData = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/protected`, {
+            headers: getAuthHeaders(),
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response ? error.response.data : error.message;
     }
+};
 
-    return {}; // No token, no Authorization header
+// Log out the user (clear token)
+export const logoutUser = () => {
+    localStorage.removeItem('JWTAuthToken'); // Clear token from local storage
 };

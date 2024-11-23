@@ -12,35 +12,50 @@ const LoginPage = () => {
     const handleLogin = async (event) => {
         event.preventDefault();
         try {
+            console.log("Attempting login with:", { username, password });
+            // Call the loginUser function (it already stores the token in localStorage)
             await loginUser({ username, password });
+
+            // Navigate to the dashboard upon successful login
             alert('Logged in successfully!');
-            navigate('/dashboard');
+            navigate('/home');
         } catch (error) {
             console.error('Login failed:', error);
             alert('Invalid username or password');
         }
     };
 
-
     return (
         <div className="login-box">
             <p>Login</p>
             <form onSubmit={handleLogin}>
                 <div className="user-box">
-                    <input name="username" type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)}
-                           required/>
-
+                    <input
+                        name="username"
+                        type="text"
+                        placeholder="Username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        required
+                    />
                 </div>
                 <div className="user-box">
-
-                    <input name="password" type="password" placeholder="Password" value={password}
-                           onChange={(e) => setPassword(e.target.value)} required/>
+                    <input
+                        name="password"
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
                 </div>
                 <button type="submit" className="btn">
-                Submit
+                    Submit
                 </button>
             </form>
-            <p>Don't have an account? <a href="/signup" className="a2">Sign up!</a></p>
+            <p>
+                Don't have an account? <a href="/signup" className="a2">Sign up!</a>
+            </p>
         </div>
 );
 };

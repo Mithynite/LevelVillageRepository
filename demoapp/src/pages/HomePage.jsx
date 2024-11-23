@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { getPosts } from '../api/postService'; // Import your API service
+import '../styles/common-style.css'; // Adjust the path to your CSS file
 
-const Dashboard = () => {
+const HomePage = () => {
     const [posts, setPosts] = useState([]); // State to store posts
     const [error, setError] = useState(null); // State to store errors
 
@@ -21,8 +23,9 @@ const Dashboard = () => {
 
     return (
         <div className="dashboard">
-            <h1>Dashboard</h1>
+            <h1>Welcome to the HomePage!</h1>
 
+            {/* Show an error message if the API call fails */}
             {error && <p className="error-message">{error}</p>}
 
             {/* Display posts */}
@@ -43,4 +46,4 @@ const Dashboard = () => {
     );
 };
 
-export default Dashboard;
+export default HomePage;

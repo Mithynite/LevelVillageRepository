@@ -6,7 +6,7 @@ import {registerUser} from "../api/authService.jsx";
 const WelcomePage = () => {
     const navigate = useNavigate();
 
-    const navigateToLoginPage= async (event) => {
+    const navigateToLoginPage= async () => {
         navigate('/login');
     };
     return (
