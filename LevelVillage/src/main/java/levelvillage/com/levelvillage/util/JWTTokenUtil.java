@@ -3,13 +3,15 @@ package levelvillage.com.levelvillage.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
+import java.security.Key;
 import java.util.Date;
 
 @Component
 public class JWTTokenUtil {
-    private static final String SECRET_KEY = "1eo7--w_oPd"; // Replace with a secure key
+    private static final Key SECRET_KEY = Keys.secretKeyFor(io.jsonwebtoken.SignatureAlgorithm.HS256); // Replace with a secure key
     private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 10; // 10 hours
 
     // Generate token

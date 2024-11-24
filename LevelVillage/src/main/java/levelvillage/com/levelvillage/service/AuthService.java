@@ -62,7 +62,6 @@ public class AuthService {
         if (!bCryptPasswordEncoder.matches(password, user.getPassword())) {
             throw new IllegalArgumentException("Invalid username or password!");
         }
-
         // Generate and return JWT token
         return jwtTokenUtil.generateToken(user.getUsername());
     }

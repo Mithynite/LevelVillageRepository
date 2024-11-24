@@ -13,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 @Configuration // aby fungovaly Beany
 @EnableWebSecurity //že v této třídě použijeme security, a že má SB použít tohle
@@ -28,14 +29,15 @@ public class SecurityConfig{
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
+                .csrf().disable() // Disable CSRF (for API requests)
+                .cors().and() // Enable CORS handling in Spring Security TODO Maybe should be deleted afterwards due to the same ip
                 .authorizeRequests()
                 .requestMatchers("/api/signup", "/api/login").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement().disable(); // Disable session-based authentication
 
-        // Add the JWT filter
+        // Add the JWTAuthenticationFilter before UsernamePasswordAuthenticationFilter
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -44,6 +46,10 @@ public class SecurityConfig{
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+    /**
+     * Define the AuthenticationManager as a bean explicitly to avoid conflicts.
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();

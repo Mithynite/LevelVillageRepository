@@ -15,7 +15,7 @@ import java.util.List;
 @RequestMapping("/api/posts")
 @CrossOrigin(origins = "http://localhost:5173") //TODO změnit
 public class PostController {
-    private PostService postService;
+    private final PostService postService;
 
     @Autowired
     public PostController(PostService postService) {

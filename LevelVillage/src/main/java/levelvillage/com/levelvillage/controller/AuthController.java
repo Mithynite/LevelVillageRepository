@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+/*
+This class manages API requests for Login and Sign Up
+ */
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "http://localhost:5173") //TODO změnit
@@ -54,6 +57,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password!!!");
         }
     }*/
+
     private final AuthService authService;
 
     @Autowired
@@ -79,13 +83,10 @@ public class AuthController {
     /**
      * Endpoint to log in a user and return a JWT token.
      */
-    @PostMapping("/login")
+    /*@PostMapping("/login")
     public ResponseEntity<Map<String, String>> loginUser(@RequestBody User userLoginRequest) {
         try {
-            String token = authService.authenticateAndGenerateToken(
-                    userLoginRequest.getUsername(),
-                    userLoginRequest.getPassword()
-            );
+            String token = authService.authenticateAndGenerateToken(userLoginRequest.getUsername(), userLoginRequest.getPassword());
 
             Map<String, String> response = new HashMap<>();
             response.put("message", "User logged in successfully!");
@@ -95,6 +96,20 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Login failed!"));
+        }
+    }*/
+    @PostMapping("/login")
+    public ResponseEntity<?> loginUser(@RequestBody User userLoginRequest) {
+        try {
+            String token = authService.authenticateAndGenerateToken(userLoginRequest.getUsername(), userLoginRequest.getPassword());
+            return ResponseEntity.ok(Map.of("token", token, "message", "Login successful"));
+        } catch (IllegalArgumentException e) {
+            // Return 401 for authentication errors
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        } catch (Exception e) {
+            // Catch any other unexpected errors
+            e.printStackTrace(); // Log the error for debugging
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
         }
     }
 }
