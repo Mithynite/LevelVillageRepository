@@ -11,7 +11,7 @@ import java.util.Date;
 
 @Component
 public class JWTTokenUtil {
-    private static final Key SECRET_KEY = Keys.secretKeyFor(io.jsonwebtoken.SignatureAlgorithm.HS256); // Replace with a secure key
+    private static final Key SECRET_KEY = Keys.secretKeyFor(io.jsonwebtoken.SignatureAlgorithm.HS256); // Generates new JWT token after each restart TODO (POZOR: Je potřeba se opětovně Loginout, aby frontend dostal nový klíč...)
     private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 10; // 10 hours
 
     // Generate token
@@ -27,6 +27,10 @@ public class JWTTokenUtil {
     // Extract username from token
     public String extractUsername(String token) {
         return extractAllClaims(token).getSubject();
+    }
+    // Extract expiration time from the token
+    public long extractExpiration(String token) {
+        return extractAllClaims(token).getExpiration().getTime(); // Returns expiration as timestamp
     }
 
     // Check if the token is expired

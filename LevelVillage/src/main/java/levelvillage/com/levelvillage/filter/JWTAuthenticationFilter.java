@@ -30,15 +30,21 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         final String authorizationHeader = request.getHeader("Authorization");
 
+        if (authorizationHeader == null) {
+            System.out.println("Authorization header is missing");
+            filterChain.doFilter(request, response);
+            return;
+        }
+        System.out.println("Authorization header: " + authorizationHeader);
         String username = null;
         String token = null;
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             token = authorizationHeader.substring(7); // Remove "Bearer " prefix
+            System.out.println("Extracted token: " + token);
             username = tokenUtil.extractUsername(token);
         }
 

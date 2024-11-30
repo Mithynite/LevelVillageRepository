@@ -54,15 +54,9 @@ public class SecurityConfig{
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
+
     /*@Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, HttpSecurity httpSecurity) throws Exception {
-        return httpSecurity
-                .formLogin(httpForm -> {
-                    httpForm.loginPage("/").permitAll();
-                }).authorizeHttpRequests(registry -> {
-                    registry.requestMatchers("/signup").permitAll();
-                    registry.anyRequest().authenticated();
-                }).build();
         http
                 .cors().and() // Enable CORS
                 .csrf().disable() // Disable CSRF for API endpoints

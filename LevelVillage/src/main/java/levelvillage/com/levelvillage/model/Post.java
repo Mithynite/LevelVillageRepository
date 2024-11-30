@@ -18,15 +18,17 @@ public class Post {
     @Setter
     private String title;
     private String description;
-    private String author;
     private Date created_at; // TODO Možná nefunguje
-    // + Date of creation
 
-    public Post(Long id, String title, String description, String author) {
+    @ManyToOne
+    @JoinColumn(name="user_id") // FK of the post table is 'user_id'
+    private User user;
+
+    public Post(Long id, String title, String description, User user) { // + Date of creation
         this.id = id;
         this.title = title;
         this.description = description;
-        this.author = author;
+        this.user = user;
     }
     public Post() {}
 }

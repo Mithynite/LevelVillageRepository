@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -24,6 +25,7 @@ public class PostController {
     // Get all posts
     @GetMapping
     public List<Post> getAllPosts() {
+        System.out.println("Listing Posts: " + postService.getAllPosts());
         return postService.getAllPosts();
     }
 
@@ -37,6 +39,19 @@ public class PostController {
     @GetMapping("/{id}")
     public Post getPostById(@PathVariable Long id) {
         return postService.getPostById(id);
+    }
+
+    @GetMapping("/{id}/check-ownership")
+    public ResponseEntity<String> checkPostOwnership(@PathVariable Long id, Principal principal) {
+        Post post = postService.getPostById(id);
+
+        System.out.println(post.getUser().getUsername() + " : " + principal.getName());
+        // Compare the logged-in user with the post owner
+        if (post.getUser().getUsername().equals(principal.getName())) {
+            return ResponseEntity.ok("owner"); // Logged-in user is the owner
+        } else {
+            return ResponseEntity.ok("not_owner"); // Logged-in user is not the owner
+        }
     }
 
     // Delete a post by ID

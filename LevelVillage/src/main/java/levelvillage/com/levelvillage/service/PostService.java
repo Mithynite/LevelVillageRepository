@@ -24,6 +24,10 @@ public class PostService {
         return postRepository.save(post);
     }
 
+    public Post upadtePost(Post post) {
+        return postRepository.save(post);
+    }
+
     // Get all posts
     public List<Post> getAllPosts() {
         return postRepository.findAll();
@@ -31,7 +35,7 @@ public class PostService {
 
     // Get a specific post by ID
     public Post getPostById(Long id) {
-        return postRepository.findById(id).orElse(null);
+        return postRepository.findById(id).orElseThrow(() -> new RuntimeException("Post not found"));
     }
 
     // Delete a post by ID
