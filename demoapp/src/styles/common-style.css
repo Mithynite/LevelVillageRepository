@@ -11,7 +11,10 @@ input:-webkit-autofill:active {
 /* Global Styles */
 body {
     background: linear-gradient(63deg, #e6c90a, #d18a10, #d1b21a);
-    font-family: Tahoma, sans-serif;
+    background-size: cover; /* Ensures the background stretches */
+    background-repeat: no-repeat; /* Prevents the background from repeating */
+    height: 100vh; /* Forces the body to fill the viewport height */
+    margin: 0; /* Removes default margin */
 }
 
 /* Login Box Styling */
@@ -314,4 +317,26 @@ body {
 .welcome-page .login-button:active {
     box-shadow: none;
     transform: translateY(0);
+}
+
+
+/* ----- Home Page ------ */
+
+.dashboard {
+    width: 100%;
+    height: 100%;
+    display: flex;
+}
+.dashboard .posts-container {
+    margin-top: 2rem;
+    width: auto;
+    height: auto;
+    background-color: red;
+    display: flex;
+    gap:100px
+}
+.dashboard .post-card {
+    width: auto;
+    height: auto;
+    background: white;
 }

@@ -22,7 +22,6 @@ const SignUpPage = () => {
 
         try {
             await registerUser({ username, email, password });
-            alert('User registered successfully!');
             setErrorMessage(''); // Clear error message if any
             navigate('/login'); // Redirect to the dashboard after signup
         } catch (error) {

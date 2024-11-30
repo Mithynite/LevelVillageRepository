@@ -17,11 +17,9 @@ const LoginPage = () => {
             await loginUser({ username, password });
 
             // Navigate to the dashboard upon successful login
-            alert('Logged in successfully!');
             navigate('/home');
         } catch (error) {
             console.error('Login failed:', error);
-            alert('Invalid username or password');
         }
     };
 
