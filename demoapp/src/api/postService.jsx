@@ -34,12 +34,14 @@ export const checkPostOwnership = async (postId) => {
 
 export const fetchPostById = async (postId) => {
     const token = localStorage.getItem('JWTAuthToken');
+
     try {
-        const response = await fetch(`${API_BASE_URL}/${postId}`, {
+        const response = await fetch(
+            `${API_BASE_URL}/${postId}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
-        }); // Replace with your actual backend API URL
+        });
         if (!response.ok) {
             throw new Error("Failed to fetch post");
         }
@@ -49,3 +51,47 @@ export const fetchPostById = async (postId) => {
         throw error;
     }
 };
+
+export const updatePost = async (postId, updatedPost) => {
+    const token = localStorage.getItem('JWTAuthToken');
+    if (!token) {
+        console.error('No JWT token found in localStorage!');
+        throw new Error('No JWT token found');
+    }
+    try{
+        const response = await axios.put(
+            `${API_BASE_URL}/${postId}`,
+            updatedPost,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+            );
+        return response.data;
+    }catch(error){
+        console.error("Error updating post:", error);
+        throw error;
+    }
+}
+
+export const deletePost = async (postId) => {
+    const token = localStorage.getItem('JWTAuthToken');
+    if (!token) {
+        console.error('No JWT token found in localStorage!');
+        throw new Error('No JWT token found');
+    }
+    try{
+        const response = await axios.delete(
+            `${API_BASE_URL}/${postId}`,
+            {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            });
+        return response.data;
+    }catch (error) {
+        console.error("Error updating post:", error);
+        throw error;
+    }
+}

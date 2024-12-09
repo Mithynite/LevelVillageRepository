@@ -21,11 +21,11 @@ export const loginUser = async (userData) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/login`, userData);
 
-        const { token } = response.data; // Extract the JWT token from the response
+        const { token, expiration } = response.data; // Extract the JWT token from the response
         if (token) {
             localStorage.setItem('JWTAuthToken', token); // Store the token in localStorage for later use (it will probably expire later due to Spring Boot, I guess)
+            localStorage.setItem("JWTAuthTokenExpiration", expiration);
         }
-
         return response.data;
     } catch (error) {
         throw error;

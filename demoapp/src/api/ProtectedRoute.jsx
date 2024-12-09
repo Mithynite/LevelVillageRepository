@@ -1,9 +1,16 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = () => {
     const token = localStorage.getItem('JWTAuthToken');
-    return token ? children : <Navigate to="/login" />;
+    const token_expiration = localStorage.getItem('JWTAuthTokenExpiration');
+    const isTokenExpired = () => {
+        if(!token_expiration) {
+            return true;
+        }
+        const currentTime = Date.now();
+        return currentTime > parseInt(token_expiration, 10); //
+    }
+        return token && !isTokenExpired() ? <Outlet/> : <Navigate to="/login" />; // Condition(expression1 && expression2) ? True : False
 };
-
 export default ProtectedRoute;
