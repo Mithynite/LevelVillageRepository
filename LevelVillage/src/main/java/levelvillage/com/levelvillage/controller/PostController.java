@@ -1,8 +1,6 @@
 package levelvillage.com.levelvillage.controller;
 
 import levelvillage.com.levelvillage.model.Post;
-import levelvillage.com.levelvillage.model.User;
-import levelvillage.com.levelvillage.repository.PostRepository;
 import levelvillage.com.levelvillage.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/posts")
-@CrossOrigin(origins = "http://localhost:5173") //TODO změnit
+@CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*", allowCredentials = "true") //TODO změnit
 public class PostController {
     private final PostService postService;
 
@@ -25,7 +23,6 @@ public class PostController {
     // Get all posts
     @GetMapping
     public List<Post> getAllPosts() {
-        System.out.println("Listing Posts: " + postService.getAllPosts());
         return postService.getAllPosts();
     }
 
@@ -54,9 +51,31 @@ public class PostController {
         }
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updatePost(@PathVariable Long id, @RequestBody Post updatedPost) {
+        if(updatedPost != null){
+            try {
+                Post postToEdit = postService.getPostById(id);
+                postToEdit.setTitle(updatedPost.getTitle());
+                postToEdit.setDescription(updatedPost.getDescription());
+
+                postService.updatePost(postToEdit);
+                return ResponseEntity.ok("Post updated successfully");
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found!");
+            } catch (Exception e) {
+                e.printStackTrace(); // Log the error for debugging
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the post!");
+            }
+        }else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Post data cannot be null!");
+        }
+    }
+
     // Delete a post by ID
     @DeleteMapping("/{id}")
     public void deletePostById(@PathVariable Long id) {
         postService.deletePostById(id);
     }
+
 }

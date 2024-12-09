@@ -1,16 +1,18 @@
 package levelvillage.com.levelvillage.config;
 
+import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+@Configuration
 public class CORSConfig implements WebMvcConfigurer {
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        // Apply CORS to all /api endpoints
-        registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:5173") // TODO Change this later
-                .allowedMethods("GET", "POST", "PUT", "DELETE") // Allow these HTTP methods
-                .allowedHeaders("*") // Allow all headers
-                .allowCredentials(true); // Allow credentials (like cookies) if necessary
+        @Override
+        public void addCorsMappings(CorsRegistry registry) {
+            registry.addMapping("/**") // Allow all endpoints
+                    .allowedOrigins("http://localhost:5173") // Adjust this if necessary
+                    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                    .allowedHeaders("*")
+                    .allowCredentials(true);
+        }
     }
-}
+

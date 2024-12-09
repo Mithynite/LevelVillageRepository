@@ -15,13 +15,14 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Setter
     private String title;
     private String description;
+
+    @Column(updatable = false)
     private Date created_at; // TODO Možná nefunguje
 
     @ManyToOne
-    @JoinColumn(name="user_id") // FK of the post table is 'user_id'
+    @JoinColumn(name = "user_id", updatable = false) // FK column is non-updatable
     private User user;
 
     public Post(Long id, String title, String description, User user) { // + Date of creation

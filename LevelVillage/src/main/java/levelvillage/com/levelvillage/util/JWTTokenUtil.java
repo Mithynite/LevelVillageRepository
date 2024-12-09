@@ -12,7 +12,7 @@ import java.util.Date;
 @Component
 public class JWTTokenUtil {
     private static final Key SECRET_KEY = Keys.secretKeyFor(io.jsonwebtoken.SignatureAlgorithm.HS256); // Generates new JWT token after each restart TODO (POZOR: Je potřeba se opětovně Loginout, aby frontend dostal nový klíč...)
-    private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 10; // 10 hours
+    private static final long EXPIRATION_TIME = 1000L * 60 * 60 * 60 * 10; // currently 10 hours until the expiration
 
     // Generate token
     public String generateToken(String username) {

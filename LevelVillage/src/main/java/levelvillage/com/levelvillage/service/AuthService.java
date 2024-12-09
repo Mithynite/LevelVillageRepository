@@ -21,13 +21,6 @@ public class AuthService {
         this.bCryptPasswordEncoder = new BCryptPasswordEncoder(); // Initialize BCryptPasswordEncoder
     }
 
-    // Register a new user with encrypted password
-    /*public User registerUser(String username, String email, String password) {
-        String encodedPassword = bCryptPasswordEncoder.encode(password);
-        User user = new User(username, email, encodedPassword);
-        return userRepository.save(user);
-    }*/
-
     public User registerUser(String username, String email, String password) {
         // Check if username already exists
         if (userRepository.findByUsername(username).isPresent()) {
@@ -47,12 +40,6 @@ public class AuthService {
         return userRepository.save(user);
     }
 
-    // Authenticate a user by comparing the raw password with the hashed password in the database
-    /*public Optional<User> authenticateTheUser(String username, String password) {
-        return userRepository.findByUsername(username)
-                .filter(user -> bCryptPasswordEncoder.matches(password, user.getPassword()));
-    }*/
-
     public String authenticateAndGenerateToken(String username, String password) {
         // Find user by username
         User user = userRepository.findByUsername(username)
@@ -64,6 +51,10 @@ public class AuthService {
         }
         // Generate and return JWT token
         return jwtTokenUtil.generateToken(user.getUsername());
+    }
+    public long getTokenExpiration(String token) {
+        // Use JWTTokenUtil to extract the expiration timestamp
+        return jwtTokenUtil.extractExpiration(token);
     }
 
 }
