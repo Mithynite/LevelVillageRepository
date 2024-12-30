@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {checkPostOwnership, getPosts} from "../api/postService";
+import {checkPostOwnership, getPosts} from "../api/PostService.jsx";
 import "../styles/common-style.css";
 import { useNavigate } from "react-router-dom";
 

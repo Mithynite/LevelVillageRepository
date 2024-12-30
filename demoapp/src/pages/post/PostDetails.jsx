@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import {deletePost, fetchPostById, updatePost} from "../../api/postService.jsx";
+import {deletePost, fetchPostById, updatePost} from "../../api/PostService.jsx";
 import NavigationButton from "../../components/NavigationButton.jsx";
 import {useNavigate} from "react-router-dom";
 
@@ -45,7 +45,7 @@ const PostDetails = ({isMyPost}) => {
         }finally {
             setLoading(false);
         }
-        };
+    };
     useEffect(() => { // does its thing when the component loads
         fetchPost(id); //call the function
     }, [id]);

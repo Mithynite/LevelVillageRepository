@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import '../styles/common-style.css';
 import {useNavigate} from "react-router-dom";
-import {registerUser} from "../api/authService.jsx";
+import {registerUser} from "../api/AuthService.jsx";
 
 const WelcomePage = () => {
     const navigate = useNavigate();
