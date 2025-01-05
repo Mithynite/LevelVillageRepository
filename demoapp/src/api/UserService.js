@@ -9,7 +9,6 @@ export const fetchUserProfile = async () => {
         console.error('No JWT token found in localStorage!');
         throw new Error('No JWT token found');
     }
-    console.log(token);
     try {
         const response = await axios.get(
             `${API_BASE_URL}/profile`, {
@@ -20,6 +19,26 @@ export const fetchUserProfile = async () => {
         return response.data;
     } catch (error) {
         console.error('Error fetching user profile:', error);
+        throw error;
+    }
+}
+
+export const updateUserProfile = async (userData) => {
+    const token = localStorage.getItem('JWTAuthToken');
+    if (!token) {
+        console.error('No JWT token found in localStorage!');
+        throw new Error('No JWT token found');
+    }
+    try {
+        const response = await axios.put(`${API_BASE_URL}/profile`, userData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error updating profile: ", error);
         throw error;
     }
 };

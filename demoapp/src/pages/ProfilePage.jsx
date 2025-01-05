@@ -1,48 +1,100 @@
-import React,{useEffect, useState} from 'react';
-import {useNavigate, useParams} from 'react-router-dom';
+import React, { useEffect, useState } from "react";
 import NavigationButton from "../components/NavigationButton.jsx";
-import {fetchUserProfile} from "../api/UserService.js";
-
+import {fetchUserProfile, updateUserProfile} from "../api/UserService.js";
 
 const ProfilePage = () => {
-    const navigate = useNavigate();
-    const { id } = useParams(); // Extract the dynamic parameter from the URL
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [formData, setFormData] = useState({
+        username: "",
+        email: "",
+        bio: "",
+        skills: "",
+    });
     const [error, setError] = useState(null);
 
+    // Fetch User Profile
     const fetchUser = async () => {
-        try{
-            const specificUser = await fetchUserProfile();
-            setUser(specificUser);
-        }catch(error){
-            console.error("Error appeared while fetching the user: ", error);
-            setError(error.message + "Something went wrong while fetching the post!");
-        }finally {
+        try {
+            const userProfile = await fetchUserProfile();
+            setUser(userProfile);
+            setFormData({
+                username: userProfile.username,
+                email: userProfile.email,
+                bio: userProfile.bio || "",
+                skills: userProfile.skills || "",
+            });
+        } catch (err) {
+            console.error("Error fetching user profile:", err);
+            setError("Failed to fetch user profile.");
+        } finally {
             setLoading(false);
         }
     };
+
+    // Handle Input Changes
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevFormData) => ({
+            ...prevFormData,
+            [name]: value,
+        }));
+    };
+
+    // Update User Profile
+    const handleProfileUpdate = async () => {
+        try {
+            const updatedUser = await updateUserProfile(formData);
+            if (updatedUser) {
+                setUser(updatedUser);
+            }
+            setIsEditing(false);
+        } catch (err) {
+            console.error("Error updating profile:", err);
+            setError("Failed to update profile.");
+        }
+    };
+
     useEffect(() => {
-        fetchUser(id)
-    }, [id]);
+        fetchUser();
+    }, []);
 
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error: {error}</p>;
 
-return(
-    <div className="profile-container">
-        <NavigationButton to="/home" label="Go Back to Home" />
-        <div className="user-box1">
-            <div className="bio">bio</div>
-            <div className="user-skills">your skills</div>
+    return (
+        <div className="profile-page">
+            <NavigationButton to="/home" label="Go Back to Home" />
+            {isEditing ? (
+                <div>
+                    <form>
+                        <textarea
+                            name="bio"
+                            value={formData.bio}
+                            onChange={handleInputChange}
+                        />
+                        <input
+                            type="text"
+                            name="skills"
+                            value={formData.skills}
+                            onChange={handleInputChange}
+                        />
+                    </form>
+                    <button onClick={handleProfileUpdate}>Save Changes</button>
+                    <button onClick={() => setIsEditing(false)}>Cancel</button>
+                </div>
+            ) : (
+                <div>
+                    <h1>{user.username}</h1>
+                    <p>Email: {user.email}</p>
+                    <p>Bio: {user.bio}</p>
+                    <p>Skills: {user.skills}</p>
+                    <button onClick={() => setIsEditing(true)}>Edit Profile</button>
+                </div>
+            )}
         </div>
-        <div className="user-box2">
-            <div className="username">{user.username}</div>
-            <div className="email">Email: {user.email}</div>
-            <div className="liked-posts">liked posts</div>
-            <div className="saved-posts">saved posts</div>
-        </div>
-    </div>
-);
+    );
 };
+
 export default ProfilePage;

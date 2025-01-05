@@ -1,79 +1,117 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import {deletePost, fetchPostById, updatePost} from "../../api/PostService.jsx";
+import { useParams, useNavigate } from "react-router-dom";
+import { deletePost, fetchPostById, updatePost } from "../../api/PostService.jsx";
 import NavigationButton from "../../components/NavigationButton.jsx";
-import {useNavigate} from "react-router-dom";
 
-const PostDetails = ({isMyPost}) => {
-    const navigate = useNavigate();
+const PostDetails = ({ isMyPost }) => {
     const { id } = useParams(); // Extract the dynamic parameter from the URL
-    const [post, setPost] = useState(null);
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
+    const [post, setPost] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [formData, setFormData] = useState({
+        title: "",
+        description: "",
+    });
     const [error, setError] = useState(null);
 
-    const [editedTitle, setEditedTitle] = useState("");
-    const [editedDescription, setEditedDescription] = useState("");
-
-    const handlePostUpdate = async () => {
-        setEditedTitle(editedTitle.trim());
-        setEditedDescription(editedDescription.trim());
-
-        if (editedTitle === "") setEditedTitle(post.title);
-        if (editedTitle === "") setEditedDescription(post.description);
-
-        console.log("Post: " + id + ", " + editedTitle + ", " + editedDescription)
-        const updatedPost = {
-            title: editedTitle,
-            description: editedDescription,
-        }
-        await updatePost(id, updatedPost);
-    };
-
-    const handlePostDelete = async () => {
-        await deletePost(id);
-        navigate('/home');
-    }
-
-    const fetchPost = async (postId) => {
-
+    // Fetch Post
+    const fetchPost = async () => {
         try {
-            const specificPost = await fetchPostById(postId);
-            setPost(specificPost);
-        }catch(error){
-            console.error("Error while fetching the post: ", error);
-            setError(error.message + "Something went wrong while fetching the post!");
-        }finally {
+            const fetchedPost = await fetchPostById(id);
+            setPost(fetchedPost);
+            setFormData({
+                title: fetchedPost.title,
+                description: fetchedPost.description,
+            });
+        } catch (err) {
+            console.error("Error fetching post:", err);
+            setError("Failed to fetch post data.");
+        } finally {
             setLoading(false);
         }
     };
-    useEffect(() => { // does its thing when the component loads
-        fetchPost(id); //call the function
+
+    // Handle Input Changes
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevFormData) => ({
+            ...prevFormData,
+            [name]: value,
+        }));
+    };
+
+    // Update Post
+    const handlePostUpdate = async () => {
+        try {
+            await updatePost(id, formData);
+            setPost((prevPost) => ({ ...prevPost, ...formData }));
+            setIsEditing(false);
+        } catch (err) {
+            console.error("Error updating post:", err);
+            setError("Failed to update post.");
+        }
+    };
+
+    // Delete Post
+    const handlePostDelete = async () => {
+        try {
+            await deletePost(id);
+            navigate("/home");
+        } catch (err) {
+            console.error("Error deleting post:", err);
+            setError("Failed to delete post.");
+        }
+    };
+
+    useEffect(() => {
+        fetchPost();
     }, [id]);
 
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error: {error}</p>;
 
     return (
-        <div className="posts-container">
+        <div className="post-details">
             <NavigationButton to="/home" label="Go Back to Home" />
-            <div>{isMyPost ? (
+            {isMyPost ? (
                 <div>
-                    <input type="text" defaultValue={post.title} onChange={(e) => setEditedTitle(e.target.value)}/>
-                    <br/>
-                    <textarea defaultValue={post.description} onChange={(e) => setEditedDescription(e.target.value)}></textarea>
-                    <button onClick={handlePostUpdate}>Update</button>
-                    <button onClick={handlePostDelete}>Delete</button>
+                    {isEditing ? (
+                        <div>
+                            <input
+                                type="text"
+                                name="title"
+                                value={formData.title}
+                                onChange={handleInputChange}
+                            />
+                            <textarea
+                                name="description"
+                                value={formData.description}
+                                onChange={handleInputChange}
+                            ></textarea>
+                            <button onClick={handlePostUpdate}>Save Changes</button>
+                            <button onClick={() => setIsEditing(false)}>Cancel</button>
+                        </div>
+                    ) : (
+                        <div>
+                            <h1>{post.title}</h1>
+                            <p>{post.description}</p>
+                            <button onClick={() => setIsEditing(true)}>Edit</button>
+                            <button onClick={handlePostDelete}>Delete</button>
+                        </div>
+                    )}
                 </div>
             ) : (
-                <div className="author-container">
-                    <h1>{post.user.username}</h1>
+                <div>
+                    <h1>{post.title}</h1>
+                    <p>{post.description}</p>
                 </div>
             )}
-            </div>
-            <div className="post-container">
+            <div>
                 <p><strong>Published on:</strong> {new Date(post.created_at).toLocaleDateString()}</p>
             </div>
         </div>
     );
 };
+
 export default PostDetails;
