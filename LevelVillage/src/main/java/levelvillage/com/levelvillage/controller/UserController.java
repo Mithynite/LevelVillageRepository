@@ -71,8 +71,33 @@ public class UserController {
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        UserDTO userDTO = new UserDTO(user.getId(), user.getUsername(), user.getEmail());
+        UserDTO userDTO = new UserDTO(user.getId(), user.getUsername(), user.getEmail(), user.getBio(), user.getLikedPosts(), user.getSavedPosts(), user.getSkills());
         return ResponseEntity.ok(userDTO);
+    }
+
+    @PutMapping("users/profile")
+    public ResponseEntity<String> updateUserProfile(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody UserDTO userDTO) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You must be logged in to update your profile.");
+        }
+        System.out.println("Received User details:" + userDTO.toString());
+        try {
+            User updatedUser = userService.updateUserProfile(userDetails.getUsername(), userDTO);
+            System.out.println(updatedUser.toString());
+            // Handle a scenario where the user does not exist
+            if (updatedUser == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found!");
+            }
+            return ResponseEntity.ok("User's profile updated successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace(); // Log the error for debugging purposes
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred while updating the profile.");
+        }
     }
 
 }

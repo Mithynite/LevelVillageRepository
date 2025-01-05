@@ -1,5 +1,6 @@
 package levelvillage.com.levelvillage.service;
 
+import levelvillage.com.levelvillage.dto.UserDTO;
 import levelvillage.com.levelvillage.model.User;
 import levelvillage.com.levelvillage.repository.UserRepository;
 import levelvillage.com.levelvillage.util.JWTTokenUtil;
@@ -93,4 +94,26 @@ public class UserService implements UserDetailsService {
     public long getTokenExpiration(String token) {
         return jwtTokenUtil.extractExpiration(token);
     }
+
+    public User updateUserProfile(String username, UserDTO userDTO) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found!"));
+
+        // Update user properties
+        if (userDTO.getUsername() != null) {
+            user.setUsername(userDTO.getUsername());
+        }
+        if (userDTO.getEmail() != null) {
+            user.setEmail(userDTO.getEmail());
+        }
+        if (userDTO.getBio() != null) {
+            user.setBio(userDTO.getBio());
+        }
+        if (userDTO.getSkills() != null) {
+            user.setSkills(userDTO.getSkills());
+        }
+
+        return userRepository.save(user);
+    }
+
 }
