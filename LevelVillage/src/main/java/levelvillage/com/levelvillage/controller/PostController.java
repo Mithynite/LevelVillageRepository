@@ -42,7 +42,6 @@ public class PostController {
     public ResponseEntity<String> checkPostOwnership(@PathVariable Long id, Principal principal) {
         Post post = postService.getPostById(id);
 
-        System.out.println(post.getUser().getUsername() + " : " + principal.getName());
         // Compare the logged-in user with the post owner
         if (post.getUser().getUsername().equals(principal.getName())) {
             return ResponseEntity.ok("owner"); // Logged-in user is the owner

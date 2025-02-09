@@ -1,8 +1,12 @@
 package levelvillage.com.levelvillage.service;
 
 import levelvillage.com.levelvillage.dto.UserDTO;
+import levelvillage.com.levelvillage.model.Skill;
 import levelvillage.com.levelvillage.model.User;
+import levelvillage.com.levelvillage.model.UserSkill;
+import levelvillage.com.levelvillage.repository.SkillRepository;
 import levelvillage.com.levelvillage.repository.UserRepository;
+import levelvillage.com.levelvillage.repository.UserSkillRepository;
 import levelvillage.com.levelvillage.util.JWTTokenUtil;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,86 +15,69 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
+    private final SkillRepository skillRepository;
+    private final UserSkillRepository userSkillsRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JWTTokenUtil jwtTokenUtil;
 
-    public UserService(UserRepository userRepository, JWTTokenUtil jwtTokenUtil) {
+    public UserService(UserRepository userRepository, SkillRepository skillRepository, UserSkillRepository userSkillsRepository, JWTTokenUtil jwtTokenUtil) {
         this.userRepository = userRepository;
+        this.skillRepository = skillRepository;
+        this.userSkillsRepository = userSkillsRepository;
         this.jwtTokenUtil = jwtTokenUtil;
         this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
     }
 
-    /**
-     * Spring Security's method for loading a user by username during authentication.
-     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // Find the user in the database
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
-        // Return Spring Security's User object with username, password, and authorities (roles)
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
-                Collections.emptyList() // Use an empty list if no roles/authorities are implemented
+                Collections.emptyList()
         );
     }
 
-    /**
-     * Retrieve the custom User entity by username for application-level logic.
-     */
     public User findUserByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
     }
 
-    /**
-     * Authenticate a user and generate a JWT token.
-     */
     public String authenticateAndGenerateToken(String username, String password) {
-        // Find user by username
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid username or password!"));
 
-        // Check if the password matches
         if (!bCryptPasswordEncoder.matches(password, user.getPassword())) {
             throw new IllegalArgumentException("Invalid username or password!");
         }
 
-        // Generate and return the JWT token
         return jwtTokenUtil.generateToken(user.getUsername());
     }
 
-    /**
-     * Register a new user with encrypted password.
-     */
     public User registerUser(String username, String email, String password) {
-        // Check if username already exists
         if (userRepository.findByUsername(username).isPresent()) {
             throw new IllegalArgumentException("Username is already taken!");
         }
 
-        // Check if email already exists
         boolean emailExists = userRepository.findAll().stream()
                 .anyMatch(user -> user.getEmail().equals(email));
         if (emailExists) {
             throw new IllegalArgumentException("Email is already registered!");
         }
 
-        // Save the new user with the encoded password
         String encodedPassword = bCryptPasswordEncoder.encode(password);
         User user = new User(username, email, encodedPassword);
         return userRepository.save(user);
     }
 
-    /**
-     * Retrieve the token expiration time in milliseconds.
-     */
     public long getTokenExpiration(String token) {
         return jwtTokenUtil.extractExpiration(token);
     }
@@ -99,7 +86,6 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found!"));
 
-        // Update user properties
         if (userDTO.getUsername() != null) {
             user.setUsername(userDTO.getUsername());
         }
@@ -109,11 +95,44 @@ public class UserService implements UserDetailsService {
         if (userDTO.getBio() != null) {
             user.setBio(userDTO.getBio());
         }
-        if (userDTO.getSkills() != null) {
-            user.setSkills(userDTO.getSkills());
+        if (userDTO.getSkills() != null && !userDTO.getSkills().isEmpty()) {
+            userSkillsRepository.deleteByUserId(user.getId());
+
+            List<UserSkill> userSkills = userDTO.getSkills().stream().map(skillDTO -> {
+                Skill skill = skillRepository.findById(skillDTO.getId())
+                        .orElseThrow(() -> new IllegalArgumentException("Skill not found with ID: " + skillDTO.getId()));
+                return new UserSkill(user, skill);
+            }).collect(Collectors.toList());
+
+            userSkillsRepository.saveAll(userSkills);
         }
 
         return userRepository.save(user);
     }
 
+    public List<Skill> getUserSkills(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found!"));
+
+        return userSkillsRepository.findByUser(user).stream()
+                .map(UserSkill::getSkill)
+                .collect(Collectors.toList());
+    }
+
+    public void assignSkillsToUser(Long userId, List<Long> skillIds) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found!"));
+
+        userSkillsRepository.deleteByUserId(userId);
+
+        List<UserSkill> userSkills = skillIds.stream()
+                .map(skillId -> {
+                    Skill skill = skillRepository.findById(skillId)
+                            .orElseThrow(() -> new IllegalArgumentException("Skill not found with ID: " + skillId));
+                    return new UserSkill(user, skill);
+                }).collect(Collectors.toList());
+
+        userSkillsRepository.saveAll(userSkills);
+    }
 }
+
