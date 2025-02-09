@@ -12,10 +12,8 @@ const LoginPage = () => {
     const handleLogin = async (event) => {
         event.preventDefault();
         try {
-            console.log("Attempting login with:", { username, password });
             // Call the loginUser function (it already stores the token in localStorage)
             await loginUser({ username, password });
-
             // Navigate to the dashboard upon successful login
             navigate('/home');
         } catch (error) {

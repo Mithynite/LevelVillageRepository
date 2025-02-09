@@ -17,7 +17,7 @@ function App() {
                 <Route path="/home" element={<HomePage />}/>
                 <Route path="/posts/:id" element={<PostDetails isMyPost={false} />} />
                 <Route path="/myposts/:id" element={<PostDetails isMyPost={true} />} />
-                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/users/:username/profile" element={<ProfilePage />} />
             </Route>
         </Routes>
     );
