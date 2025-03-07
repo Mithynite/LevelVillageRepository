@@ -33,7 +33,7 @@ export const updateUserProfile = async (username, userData) => {
 
     try {
         const response = await axios.put(
-            `${API_BASE_URL}/${username}/profile`, // Use username instead of id
+            `${API_BASE_URL}/${username}/profile`,
             userData,
             {
                 headers: {

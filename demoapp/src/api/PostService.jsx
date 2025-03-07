@@ -38,10 +38,10 @@ export const fetchPostById = async (postId) => {
     try {
         const response = await fetch(
             `${API_BASE_URL}/${postId}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
         if (!response.ok) {
             throw new Error("Failed to fetch post");
         }
@@ -51,6 +51,25 @@ export const fetchPostById = async (postId) => {
         throw error;
     }
 };
+
+export const createPost = async (post) => {
+    const token = localStorage.getItem('JWTAuthToken');
+    if (!token) {
+        console.error('No JWT token found in localStorage!');
+        throw new Error('No JWT token found');
+    }
+    try{
+        const response = await axios.post(`${API_BASE_URL}`, post, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    }catch (error) {
+        console.error('Error creating post:', error);
+        throw error;
+    }
+}
 
 export const updatePost = async (postId, updatedPost) => {
     const token = localStorage.getItem('JWTAuthToken');
@@ -67,7 +86,7 @@ export const updatePost = async (postId, updatedPost) => {
                     Authorization: `Bearer ${token}`,
                 },
             }
-            );
+        );
         return response.data;
     }catch(error){
         console.error("Error updating post:", error);
@@ -85,9 +104,9 @@ export const deletePost = async (postId) => {
         const response = await axios.delete(
             `${API_BASE_URL}/${postId}`,
             {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             });
         return response.data;
     }catch (error) {

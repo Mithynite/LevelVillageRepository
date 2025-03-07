@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";  // Import useParams
+import { useParams } from "react-router-dom";
 import NavigationButton from "../components/NavigationButton.jsx";
 import { fetchUserProfile, updateUserProfile } from "../api/UserService.jsx";
 import { fetchSkills } from "../api/SkillService.jsx";
@@ -9,78 +9,79 @@ const ProfilePage = () => {
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
     const [skills, setSkills] = useState([]);
-    const [selectedSkills, setSelectedSkills] = useState([]);
+    const [selectedSkills, setSelectedSkills] = useState([]); // Holds selected skills (skill IDs)
     const [isEditing, setIsEditing] = useState(false);
-    const [formData, setFormData] = useState({
-        bio: "",
-        skills: [],
-    });
+    const [formData, setFormData] = useState({ bio: "", skills: [] });
     const [error, setError] = useState(null);
 
     // Get logged-in user's username from localStorage
     const loggedInUsername = localStorage.getItem("username");
 
-    // Fetch User Profile
-    const fetchUser = async () => {
-        try {
-            const userProfile = await fetchUserProfile(username); // Fetch by username
-            setUser(userProfile);
-            setFormData({
-                bio: userProfile.bio || "",
-                skills: userProfile.skills || [],
-                username: userProfile.username || "",
-                email: userProfile.email || "",
-            });
-
-            setSelectedSkills(userProfile.skills.map((skill) => skill.id));
-            setLoading(false);
-        } catch (err) {
-            console.error("Error fetching user profile:", err);
-            setError("Failed to fetch user profile.");
-            setLoading(false);
-        }
-    };
-
-    // Fetch Skills
-    const fetchAllSkills = async () => {
+    // Fetch All Available Skills and User Profile (in order)
+    const fetchAllSkillsAndUser = async () => {
         try {
             const allSkills = await fetchSkills();
             setSkills(allSkills);
+
+            const userProfile = await fetchUserProfile(username);
+
+            // Map user's skill IDs to skill names AFTER skills are available
+            const userSkills = userProfile.skills.map(skillId => {
+                const skill = allSkills.find(s => Number(s.id) === Number(skillId));
+                return skill || { id: skillId, skillName: "Unknown Skill" };
+            });
+
+            setUser({
+                ...userProfile,
+                skills: userSkills,
+            });
+
+            setFormData({
+                bio: userProfile.bio || "",
+                skills: userProfile.skills || [],
+            });
+
+            setSelectedSkills(userProfile.skills);
+            setLoading(false);
         } catch (err) {
-            console.error("Error fetching skills:", err);
-            setError("Failed to fetch skills.");
+            console.error("Error fetching data:", err);
+            setError("Failed to fetch profile or skills.");
             setLoading(false);
         }
     };
 
-    // Handle Input Changes
+// Fetch data on mount
+    useEffect(() => {
+        if (username) {
+            fetchAllSkillsAndUser();
+        }
+    }, [username]);
+
+    // Handle Input Changes for Bio
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prevFormData) => ({
+        setFormData(prevFormData => ({
             ...prevFormData,
             [name]: value,
         }));
     };
 
-    // Handle Skill Change
+    // Handle Skill Selection Changes
     const handleSkillChange = (e) => {
-        const selectedOptions = [...e.target.selectedOptions].map(option => option.value);
-        setSelectedSkills(selectedOptions);
+        const selectedOptions = [...e.target.selectedOptions].map(option => Number(option.value));
+        setSelectedSkills(selectedOptions); // Update selected skills (IDs)
     };
 
     // Update User Profile
     const handleProfileUpdate = async () => {
         try {
-            console.log("Updating with:", formData);
-
             await updateUserProfile(username, {
-                username: user.username,
-                email: user.email,
                 bio: formData.bio,
-                skills: selectedSkills,
+                skills: selectedSkills, // Array of skill IDs
             });
 
-            setUser((prevUser) => ({
+            // Update the user state with the selected skill names
+            setUser(prevUser => ({
                 ...prevUser,
                 bio: formData.bio,
                 skills: skills.filter(skill => selectedSkills.includes(skill.id)),
@@ -93,20 +94,13 @@ const ProfilePage = () => {
         }
     };
 
-    // Fetch user profile and skills on component mount
-    useEffect(() => {
-        if (username) {
-            fetchUser();
-            fetchAllSkills();
-        }
-    }, [username]);
-
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error: {error}</p>;
 
     return (
         <div className="profile-page">
             <NavigationButton to="/home" label="Go Back to Home" />
+
             {isEditing ? (
                 <div>
                     <form>
@@ -122,15 +116,19 @@ const ProfilePage = () => {
                             Skills:
                             <select
                                 multiple
-                                value={selectedSkills}
+                                value={selectedSkills} // Ensure selected skills are reflected
                                 onChange={handleSkillChange}
-                                size={5}
+                                className="skill-dropdown"
                             >
-                                {skills.map((skill) => (
-                                    <option key={skill.id} value={skill.id}>
-                                        {skill.name}
-                                    </option>
-                                ))}
+                                {skills.length > 0 ? (
+                                    skills.map(skill => (
+                                        <option key={skill.id} value={skill.id}>
+                                            {skill.skillName} {/* Display skill name */}
+                                        </option>
+                                    ))
+                                ) : (
+                                    <option>No skills available</option> // Handle case where no skills exist
+                                )}
                             </select>
                         </label>
                     </form>
@@ -143,10 +141,17 @@ const ProfilePage = () => {
                     <p>Email: {user?.email}</p>
                     <p>Bio: {user?.bio}</p>
                     <p>
-                        Skills: {user?.skills.length > 0 ? user.skills.map(skill => skill.name).join(", ") : "No skills added yet"}
+                        <strong>Skills:</strong>{" "}
+                        {user?.skills.length > 0
+                            ? user.skills
+                                .map(skill => {
+                                    return skill ? skill.skillName : "Unknown Skill";
+                                })
+                                .join(", ")
+                            : "No skills added yet"}
                     </p>
 
-                    {/* Only show "Edit Profile" button if logged-in user is viewing their own profile */}
+                    {/* Show "Edit Profile" button only if logged-in user is viewing their own profile */}
                     {loggedInUsername === username && (
                         <button onClick={() => setIsEditing(true)}>Edit Profile</button>
                     )}

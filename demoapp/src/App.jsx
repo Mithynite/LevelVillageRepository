@@ -6,6 +6,7 @@ import WelcomePage from "./pages/WelcomePage.jsx";
 import ProtectedRoute from "./api/ProtectedRoute.jsx";
 import PostDetails from "./pages/post/PostDetails.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
+import PostCreationPage from "./pages/post/PostCreationPage.jsx";
 
 function App() {
     return (
@@ -16,6 +17,7 @@ function App() {
             <Route element={<ProtectedRoute/>}>
                 <Route path="/home" element={<HomePage />}/>
                 <Route path="/posts/:id" element={<PostDetails isMyPost={false} />} />
+                <Route path="/posts/create" element={<PostCreationPage/>} />
                 <Route path="/myposts/:id" element={<PostDetails isMyPost={true} />} />
                 <Route path="/users/:username/profile" element={<ProfilePage />} />
             </Route>

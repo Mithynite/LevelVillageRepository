@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import '../styles/common-style.css';
 import {useNavigate} from "react-router-dom";
 import {registerUser} from "../api/AuthService.jsx";
+import NavigationButton from "../components/NavigationButton.jsx";
 
 const WelcomePage = () => {
     const navigate = useNavigate();
@@ -36,7 +37,11 @@ const WelcomePage = () => {
                 </div>
             </div>
             <div>
+                <NavigationButton to={"/login"} label={"Login"}></NavigationButton>
+                {/*
                 <button onClick={navigateToLoginPage} className="login-button">Login</button>
+                */}
+
             </div>
         </div>
     );

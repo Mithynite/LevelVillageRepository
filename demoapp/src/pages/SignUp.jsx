@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { registerUser } from '../api/AuthService.jsx';
 import '../styles/common-style.css';
 import {useNavigate} from "react-router-dom";
+import NavigationButton from "../components/NavigationButton.jsx";
 
 const SignUpPage = () => {
     const [username, setUsername] = useState('');

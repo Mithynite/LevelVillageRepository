@@ -2,16 +2,19 @@ import React, { useState, useEffect } from "react";
 import {checkPostOwnership, getPosts} from "../api/PostService.jsx";
 import "../styles/common-style.css";
 import { useNavigate } from "react-router-dom";
+import NavigationButton from "../components/NavigationButton.jsx";
 
 const HomePage = () => {
     const [posts, setPosts] = useState([]);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
+    const username = localStorage.getItem("username");
     useEffect(() => {
         const fetchPosts = async () => {
             try {
                 const fetchedPosts = await getPosts();
+                console.log(fetchedPosts);
                 setPosts(fetchedPosts);
             } catch (err) {
                 console.error("Failed to fetch posts:", err);
@@ -41,6 +44,10 @@ const HomePage = () => {
     };
 
 
+    const handlePostCreation = () => {
+        navigate("/posts/create");
+    }
+
     return (
         <div className="dashboard">
             {error && <p className="error-message">{error}</p>}
@@ -65,6 +72,16 @@ const HomePage = () => {
                     <p>No posts available</p>
                 )}
             </div>
+                <button className="plus-button" onClick={handlePostCreation}>
+                    <div className="plus-button-sign">+</div>
+                    <div className="plus-button-text">Create</div>
+                </button>
+            {/* Profile Navigation Button */}
+            {username && (
+                <NavigationButton to={`/users/${username}/profile`}
+                                  label="My Profile"
+                                  className="profile-button"/>
+            )}
         </div>
     );
 };

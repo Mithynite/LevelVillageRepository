@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-const NavigationButton = ({ to = "/home", label = "Return" }) => {
+const NavigationButton = ({ to = "/home", label = "Return", className = ""}) => {
     const navigate = useNavigate();
 
     const handleClick = () => {
@@ -9,7 +9,7 @@ const NavigationButton = ({ to = "/home", label = "Return" }) => {
     };
 
     return (
-        <button onClick={handleClick} className="return-button">
+        <button onClick={handleClick} className={className}>
             {label}
         </button>
     );

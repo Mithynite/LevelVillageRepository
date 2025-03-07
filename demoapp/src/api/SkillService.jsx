@@ -15,12 +15,10 @@ export const fetchSkills = async () => {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
-            }); // No auth needed for public endpoints
+            });
         return response.data; // List of skills
     } catch (error) {
         console.error("Error fetching skills: ", error);
-        throw error;
+        throw new Error("Failed to fetch skills");
     }
 };
-
-// Future skill-related methods (e.g., create, update, delete) can go here
