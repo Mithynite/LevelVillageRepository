@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Setter
 @Getter
@@ -17,9 +18,9 @@ public class UserDTO {
     private String bio;
     private List<Post> likedPosts = new ArrayList<>();
     private List<Post> savedPosts = new ArrayList<>();
-    private List<Skill> skills = new ArrayList<>();
+    private List<Long> skills = new ArrayList<>();
 
-    public UserDTO(Long id, String username, String email, String bio, List<Post> likedPosts, List<Post> savedPosts, List<Skill> skills) {
+    public UserDTO(Long id, String username, String email, String bio, List<Post> likedPosts, List<Post> savedPosts, List<Long> skills) {
         this.username = username;
         this.email = email;
         this.id = id;
@@ -28,7 +29,7 @@ public class UserDTO {
         this.savedPosts = savedPosts;
         this.skills = skills;
     }
-    public UserDTO(Long id, String username, String email, String bio, List<Skill> skills) {
+    public UserDTO(Long id, String username, String email, String bio, List<Long> skills) {
         this.username = username;
         this.email = email;
         this.id = id;

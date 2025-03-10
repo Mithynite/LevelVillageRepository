@@ -18,18 +18,18 @@ public class Post {
     private String title;
     private String description;
 
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(updatable = false)
-    private Date created_at; // TODO Možná nefunguje
+    private Date created_at;
 
     @ManyToOne
     @JoinColumn(name = "user_id", updatable = false) // FK column is non-updatable
     private User user;
 
-    public Post(Long id, String title, String description, User user) { // + Date of creation
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.user = user;
-    }
     public Post() {}
+
+    @PrePersist
+    protected void onCreate() {
+        this.created_at = new Date();
+    }
 }

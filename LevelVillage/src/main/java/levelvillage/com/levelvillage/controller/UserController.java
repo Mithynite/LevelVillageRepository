@@ -86,14 +86,12 @@ public class UserController {
                 currentUser.getBio(),
                 currentUser.getLikedPosts(),
                 currentUser.getSavedPosts(),
-                currentUser.getSkills()
+                currentUser.getSkills().stream().map(Skill::getId).toList()
         );
 
         return ResponseEntity.ok(userDTO);  // Return the requested user profile
     }
-
-
-
+    
     @PutMapping("users/{username}/profile")
     public ResponseEntity<String> updateUserProfile(
             @AuthenticationPrincipal UserDetails userDetails,

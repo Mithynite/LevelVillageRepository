@@ -1,6 +1,8 @@
 package levelvillage.com.levelvillage.controller;
 
 import levelvillage.com.levelvillage.model.Post;
+import levelvillage.com.levelvillage.model.User;
+import levelvillage.com.levelvillage.repository.UserRepository;
 import levelvillage.com.levelvillage.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,10 +17,12 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*", allowCredentials = "true") //TODO změnit
 public class PostController {
     private final PostService postService;
+    private final UserRepository userRepository;
 
     @Autowired
-    public PostController(PostService postService) {
+    public PostController(PostService postService, UserRepository userRepository) {
         this.postService = postService;
+        this.userRepository = userRepository;
     }
     // Get all posts
     @GetMapping
@@ -28,8 +32,20 @@ public class PostController {
 
     // Create a new post
     @PostMapping
-    public Post createPost(@RequestBody Post post) {
-        return postService.createPost(post);
+    public ResponseEntity<String> createPost(@RequestBody Post post) {
+        try {
+            if(post.getDescription().trim().isEmpty() || post.getTitle().trim().isEmpty()){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Title and description cannot be empty!");
+            }
+            String username = post.getUser().getUsername();
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            post.setUser(user);
+            Post savedPost = postService.createPost(post);
+            return ResponseEntity.ok("Post created successfully!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while creating the post!");
+        }
     }
 
     // Get a post by ID
@@ -44,9 +60,9 @@ public class PostController {
 
         // Compare the logged-in user with the post owner
         if (post.getUser().getUsername().equals(principal.getName())) {
-            return ResponseEntity.ok("owner"); // Logged-in user is the owner
+            return ResponseEntity.ok("owner");
         } else {
-            return ResponseEntity.ok("not_owner"); // Logged-in user is not the owner
+            return ResponseEntity.ok("not_owner");
         }
     }
 
@@ -54,6 +70,9 @@ public class PostController {
     public ResponseEntity<String> updatePost(@PathVariable Long id, @RequestBody Post updatedPost) {
         if(updatedPost != null){
             try {
+                if(updatedPost.getDescription().trim().isEmpty() || updatedPost.getTitle().trim().isEmpty()){
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Title and description cannot be empty!");
+                }
                 Post postToEdit = postService.getPostById(id);
                 postToEdit.setTitle(updatedPost.getTitle());
                 postToEdit.setDescription(updatedPost.getDescription());
@@ -63,7 +82,7 @@ public class PostController {
             } catch (IllegalArgumentException e) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found!");
             } catch (Exception e) {
-                e.printStackTrace(); // Log the error for debugging
+                e.printStackTrace();
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the post!");
             }
         }else{
