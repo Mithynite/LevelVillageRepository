@@ -83,13 +83,13 @@ const PostCreationPage = () => {
 
     return (
         <div className="post-creation">
-            <NavigationButton to="/home" label="Go Back to Home" />
+            <NavigationButton to="/home" label="Go Back to Home" className="form-button"/>
             <h1>Create a New Post</h1>
 
-            {error && <p style={{ color: "red" }}>{error}</p>}
-            {success && <p style={{ color: "green" }}>Post created successfully!</p>}
+            {error && <p className="error">{error}</p>}
+            {success && <p className="success">Post created successfully!</p>}
 
-            <form onSubmit={(e) => e.preventDefault()}>
+            <form onSubmit={(e) => e.preventDefault()} className="post-form">
                 <label>
                     Title:
                     <input
@@ -111,7 +111,7 @@ const PostCreationPage = () => {
                     ></textarea>
                 </label>
 
-                <button type="button" onClick={handlePostCreation}>
+                <button type="button" onClick={handlePostCreation} className="form-button">
                     Create Post
                 </button>
             </form>

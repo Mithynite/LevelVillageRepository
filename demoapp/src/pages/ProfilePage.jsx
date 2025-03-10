@@ -5,82 +5,68 @@ import { fetchUserProfile, updateUserProfile } from "../api/UserService.jsx";
 import { fetchSkills } from "../api/SkillService.jsx";
 
 const ProfilePage = () => {
-    const { username } = useParams(); // Get username from URL
+    const { username } = useParams();
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
     const [skills, setSkills] = useState([]);
-    const [selectedSkills, setSelectedSkills] = useState([]); // Holds selected skills (skill IDs)
+    const [selectedSkills, setSelectedSkills] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({ bio: "", skills: [] });
     const [error, setError] = useState(null);
 
-    // Get logged-in user's username from localStorage
     const loggedInUsername = localStorage.getItem("username");
 
-    // Fetch All Available Skills and User Profile (in order)
-    const fetchAllSkillsAndUser = async () => {
-        try {
-            const allSkills = await fetchSkills();
-            setSkills(allSkills);
-
-            const userProfile = await fetchUserProfile(username);
-
-            // Map user's skill IDs to skill names AFTER skills are available
-            const userSkills = userProfile.skills.map(skillId => {
-                const skill = allSkills.find(s => Number(s.id) === Number(skillId));
-                return skill || { id: skillId, skillName: "Unknown Skill" };
-            });
-
-            setUser({
-                ...userProfile,
-                skills: userSkills,
-            });
-
-            setFormData({
-                bio: userProfile.bio || "",
-                skills: userProfile.skills || [],
-            });
-
-            setSelectedSkills(userProfile.skills);
-            setLoading(false);
-        } catch (err) {
-            console.error("Error fetching data:", err);
-            setError("Failed to fetch profile or skills.");
-            setLoading(false);
-        }
-    };
-
-// Fetch data on mount
     useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const allSkills = await fetchSkills();
+                setSkills(allSkills);
+
+                const userProfile = await fetchUserProfile(username);
+
+                const userSkills = userProfile.skills.map(skillId => {
+                    const skill = allSkills.find(s => Number(s.id) === Number(skillId));
+                    return skill || { id: skillId, skillName: "Unknown Skill" };
+                });
+
+                setUser({
+                    ...userProfile,
+                    skills: userSkills,
+                });
+
+                setFormData({
+                    bio: userProfile.bio || "",
+                    skills: userProfile.skills || [],
+                });
+
+                setSelectedSkills(userProfile.skills);
+                setLoading(false);
+            } catch (err) {
+                console.error("Error fetching data:", err);
+                setError("Failed to fetch profile or skills.");
+                setLoading(false);
+            }
+        };
+
         if (username) {
-            fetchAllSkillsAndUser();
+            fetchData();
         }
     }, [username]);
 
-    // Handle Input Changes for Bio
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prevFormData => ({
-            ...prevFormData,
-            [name]: value,
-        }));
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // Handle Skill Selection Changes
     const handleSkillChange = (e) => {
         const selectedOptions = [...e.target.selectedOptions].map(option => Number(option.value));
-        setSelectedSkills(selectedOptions); // Update selected skills (IDs)
+        setSelectedSkills(selectedOptions);
     };
 
-    // Update User Profile
     const handleProfileUpdate = async () => {
         try {
-            await updateUserProfile(username, {
-                bio: formData.bio,
-                skills: selectedSkills, // Array of skill IDs
-            });
+            await updateUserProfile(username, { bio: formData.bio, skills: selectedSkills });
 
-            // Update the user state with the selected skill names
             setUser(prevUser => ({
                 ...prevUser,
                 bio: formData.bio,
@@ -99,61 +85,44 @@ const ProfilePage = () => {
 
     return (
         <div className="profile-page">
-            <NavigationButton to="/home" label="Go Back to Home" />
+            <NavigationButton to="/home" label="Go Back to Home" className="form-button"/>
 
             {isEditing ? (
-                <div>
+                <div className="profile-edit">
                     <form>
-                        <label>
-                            Bio:
+                        <label>Bio:
                             <textarea
                                 name="bio"
                                 value={formData.bio}
                                 onChange={handleInputChange}
+                                className="bio-input"
                             />
                         </label>
-                        <label>
-                            Skills:
+                        <label>Skills:
                             <select
                                 multiple
-                                value={selectedSkills} // Ensure selected skills are reflected
+                                value={selectedSkills}
                                 onChange={handleSkillChange}
                                 className="skill-dropdown"
                             >
-                                {skills.length > 0 ? (
-                                    skills.map(skill => (
-                                        <option key={skill.id} value={skill.id}>
-                                            {skill.skillName} {/* Display skill name */}
-                                        </option>
-                                    ))
-                                ) : (
-                                    <option>No skills available</option> // Handle case where no skills exist
-                                )}
+                                {skills.map(skill => (
+                                    <option key={skill.id} value={skill.id}>{skill.skillName}</option>
+                                ))}
                             </select>
                         </label>
                     </form>
-                    <button onClick={handleProfileUpdate}>Save Changes</button>
-                    <button onClick={() => setIsEditing(false)}>Cancel</button>
+                    <button onClick={handleProfileUpdate} className="form-button">Save Changes</button>
+                    <button onClick={() => setIsEditing(false)} className="form-button">Cancel</button>
                 </div>
             ) : (
-                <div>
+                <div className="profile-display">
                     <h1>{user?.username}</h1>
-                    <p>Email: {user?.email}</p>
-                    <p>Bio: {user?.bio}</p>
-                    <p>
-                        <strong>Skills:</strong>{" "}
-                        {user?.skills.length > 0
-                            ? user.skills
-                                .map(skill => {
-                                    return skill ? skill.skillName : "Unknown Skill";
-                                })
-                                .join(", ")
-                            : "No skills added yet"}
-                    </p>
+                    <p><strong>Email:</strong> {user?.email}</p>
+                    <p><strong>Bio:</strong> {user?.bio}</p>
+                    <p><strong>Skills:</strong> {user?.skills.map(skill => skill.skillName).join(", ") || "No skills added yet"}</p>
 
-                    {/* Show "Edit Profile" button only if logged-in user is viewing their own profile */}
                     {loggedInUsername === username && (
-                        <button onClick={() => setIsEditing(true)}>Edit Profile</button>
+                        <button onClick={() => setIsEditing(true)} className="form-button">Edit Profile</button>
                     )}
                 </div>
             )}
