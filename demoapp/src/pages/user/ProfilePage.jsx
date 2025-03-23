@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import NavigationButton from "../components/NavigationButton.jsx";
-import { fetchUserProfile, updateUserProfile } from "../api/UserService.jsx";
-import { fetchSkills } from "../api/SkillService.jsx";
+import NavigationButton from "../../components/NavigationButton.jsx";
+import { fetchUserProfile, updateUserProfile, getUserLikedPosts } from "../../api/UserService.jsx";
+import { fetchSkills } from "../../api/SkillService.jsx";
 
 const ProfilePage = () => {
     const { username } = useParams();
@@ -12,6 +12,7 @@ const ProfilePage = () => {
     const [selectedSkills, setSelectedSkills] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({ bio: "", skills: [] });
+    const [likedPosts, setLikedPosts] = useState([]);
     const [error, setError] = useState(null);
 
     const loggedInUsername = localStorage.getItem("username");
@@ -38,6 +39,11 @@ const ProfilePage = () => {
                     bio: userProfile.bio || "",
                     skills: userProfile.skills || [],
                 });
+
+                if (username === loggedInUsername) {
+                    const likedPostsData = await getUserLikedPosts();
+                    setLikedPosts(likedPostsData);
+                }
 
                 setSelectedSkills(userProfile.skills);
                 setLoading(false);
@@ -123,6 +129,15 @@ const ProfilePage = () => {
 
                     {loggedInUsername === username && (
                         <button onClick={() => setIsEditing(true)} className="form-button">Edit Profile</button>
+                    )}
+
+                    {/* Liked Posts Section */}
+                    {loggedInUsername === username && (
+                        <NavigationButton
+                            to={`/users/${username}/liked-posts`}
+                            label="View Liked Posts"
+                            className="form-button"
+                        />
                     )}
                 </div>
             )}

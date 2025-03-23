@@ -5,8 +5,9 @@ import SignUpPage from "./pages/SignUp";
 import WelcomePage from "./pages/WelcomePage.jsx";
 import ProtectedRoute from "./api/ProtectedRoute.jsx";
 import PostDetails from "./pages/post/PostDetails.jsx";
-import ProfilePage from "./pages/ProfilePage.jsx";
+import ProfilePage from "./pages/user/ProfilePage.jsx";
 import PostCreationPage from "./pages/post/PostCreationPage.jsx";
+import UserLikedPostsPage from "./pages/user/UserLikedPostsPage.jsx";
 
 function App() {
     return (
@@ -20,6 +21,7 @@ function App() {
                 <Route path="/posts/create" element={<PostCreationPage/>} />
                 <Route path="/myposts/:id" element={<PostDetails isMyPost={true} />} />
                 <Route path="/users/:username/profile" element={<ProfilePage />} />
+                <Route path="/users/:username/liked-posts" element={<UserLikedPostsPage />} />
             </Route>
         </Routes>
     );

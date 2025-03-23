@@ -662,13 +662,15 @@ body {
 /* Navigation Button */
 .navigation-button {
     display: inline-block;
-    padding: 10px 20px;
     background-color: goldenrod;
     color: black;
     text-decoration: none;
     border-radius: 8px;
     font-weight: bold;
     transition: background 0.3s;
+    width: 200px;
+
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.6);
 }
 
 .navigation-button:hover {
@@ -700,14 +702,14 @@ body {
 
 /* ----- Post Details Page ------ */
 .post-details {
-    max-width: 900px;
-    margin: 40px auto;
-    padding: 40px;
-    background: rgba(0, 0, 0, 0.9);
-    border-radius: 20px;
-    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.6);
+    width: 95%;
+    margin: 30px;
+    background: transparent;
     color: white;
     font-family: 'Poppins', sans-serif;
+
+    display: flex;
+    flex-direction: column;
 }
 
 /* Post Title */
@@ -715,6 +717,7 @@ body {
     font-size: 3rem;
     color: goldenrod;
     text-align: center;
+    position: relative;
     margin-bottom: 20px;
 }
 
@@ -750,29 +753,14 @@ body {
     font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
+    height: 60px;
+    width: 200px;
     transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .post-details button:hover {
     background: #d18a10;
     transform: translateY(-2px);
-}
-
-/* Navigation Button */
-.post-details .navigation-button {
-    display: inline-block;
-    margin-bottom: 20px;
-    padding: 10px 20px;
-    background-color: goldenrod;
-    color: black;
-    text-decoration: none;
-    border-radius: 8px;
-    font-weight: bold;
-    transition: background 0.3s;
-}
-
-.post-details .navigation-button:hover {
-    background: #d18a10;
 }
 
 /* Published Date */
@@ -787,6 +775,92 @@ body {
     font-size: 1.5rem;
     margin-top: 50px;
     color: #ff4d4d;
+}
+
+.foreign-post{
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    color: white;
+    height: auto;
+    display: flex;
+    flex-direction: row;
+    gap: 50px;
+}
+
+/* (Post Details) Post Information */
+
+.post-information{
+    width: 45%;
+    padding: 30px;
+    display: flex;
+    height: auto;
+    flex-direction: column;
+    background: rgba(0, 0, 0, 0.9);
+    border-radius: 15px;
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.6);
+}
+
+/* (Post Details) User Information*/
+.user-information{
+    width: 45%;
+    padding: 30px;
+    display: flex;
+    height: auto;
+    flex-direction: column;
+    background: rgba(0, 0, 0, 0.9);
+    border-radius: 15px;
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.6);
+}
+.contact-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.contact-icon {
+    font-size: 24px;
+    transition: transform 0.2s ease-in-out;
+}
+
+/* Platform-specific colors */
+.discord .contact-icon {
+    color: #7289DA;
+}
+.instagram .contact-icon {
+    color: #E1306C;
+}
+.linkedin .contact-icon {
+    color: #0077B5;
+}
+
+/* Hover effects */
+.contact-item:hover .contact-icon {
+    transform: scale(1.2);
+}
+
+.contact-item a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.3s ease-in-out;
+}
+
+.contact-item a:hover {
+    color: #ffcc00;
 }
 
 /* Responsive Design */
