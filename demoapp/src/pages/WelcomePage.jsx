@@ -3,6 +3,7 @@ import '../styles/common-style.css';
 import {useNavigate} from "react-router-dom";
 import {registerUser} from "../api/AuthService.jsx";
 import NavigationButton from "../components/NavigationButton.jsx";
+import LVIcon from "../assets/icon-components/LVIcon.jsx";
 
 const WelcomePage = () => {
     const navigate = useNavigate();
@@ -13,6 +14,7 @@ const WelcomePage = () => {
     return (
         <div className="welcome-page">
             <div className="left-container">
+                <LVIcon></LVIcon>
                 <h1>Welcome to Level Village!</h1>
                 <button>
                         <span className="start-button-box">
@@ -37,10 +39,7 @@ const WelcomePage = () => {
                 </div>
             </div>
             <div>
-                <NavigationButton to={"/login"} label={"Login"}></NavigationButton>
-                {/*
-                <button onClick={navigateToLoginPage} className="login-button">Login</button>
-                */}
+                <NavigationButton to="/login" label="Login" className="navigation-button login-button"></NavigationButton>
 
             </div>
         </div>

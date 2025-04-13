@@ -1,28 +1,53 @@
 import React, { useState, useEffect } from "react";
 import { createPost } from "../../api/PostService.jsx";
 import NavigationButton from "../../components/NavigationButton.jsx";
+import { fetchSkills } from "../../api/SkillService.jsx";
 
 const PostCreationPage = () => {
+
+    const loggedInUsername = localStorage.getItem("username");
     const [formData, setFormData] = useState({
         title: "",
         description: "",
-        username: "",
+        username: loggedInUsername,
+        skills: [],
         date: "",
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
+    const [skills, setSkills] = useState([]);
+    const [selectedSkills, setSelectedSkills] = useState([]);
 
-    // Fetch username from localStorage on component mount
     useEffect(() => {
-        const storedUsername = localStorage.getItem("username");
-        if (storedUsername) {
-            setFormData((prevFormData) => ({
-                ...prevFormData,
-                username: storedUsername,
-            }));
-        }
+        const fetchData = async () => {
+            try {
+                const allSkills = await fetchSkills();
+                setSkills(allSkills);
+            } catch (err) {
+                console.error("Error fetching data:", err);
+                setError("Failed to fetch skills.");
+                setLoading(false);
+            }
+        };
+    })
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const allSkills = await fetchSkills();
+                setSkills(allSkills);
+                console.log(allSkills);
+            } catch (err) {
+                console.error("Error fetching data:", err);
+                setError("Failed to fetch skills.");
+                setLoading(false);
+            }
+        };
+
+        fetchData(); // ✅ <-- This is what was missing!
     }, []);
+
 
     // Handle Input Changes
     const handleInputChange = (e) => {
@@ -31,6 +56,11 @@ const PostCreationPage = () => {
             ...prevFormData,
             [name]: value,
         }));
+    };
+
+    const handleSkillChange = (e) => {
+        const selectedOptions = [...e.target.selectedOptions].map(option => Number(option.value));
+        setSelectedSkills(selectedOptions);
     };
 
     // Validate Input
@@ -57,10 +87,11 @@ const PostCreationPage = () => {
             const newPost = {
                 title: formData.title,
                 description: formData.description,
-                user: { username: formData.username },
+                username: formData.username,
+                skills: selectedSkills,
                 date: new Date().toISOString(),
             };
-
+            console.log(newPost);
             await createPost(newPost);
             setSuccess(true);
 
@@ -68,7 +99,8 @@ const PostCreationPage = () => {
             setFormData({
                 title: "",
                 description: "",
-                username: formData.username,
+                username: loggedInUsername,
+                skills: [],
                 date: "",
             });
         } catch (err) {
@@ -109,6 +141,18 @@ const PostCreationPage = () => {
                         onChange={handleInputChange}
                         required
                     ></textarea>
+                </label>
+                <label>Related Skills (select up to 5):
+                    <select
+                        multiple
+                        value={selectedSkills}
+                        onChange={handleSkillChange}
+                        className="skill-dropdown"
+                    >
+                        {skills.map(skill => (
+                            <option key={skill.id} value={skill.id}>{skill.skillName}</option>
+                        ))}
+                    </select>
                 </label>
 
                 <button type="button" onClick={handlePostCreation} className="form-button">

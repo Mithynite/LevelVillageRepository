@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { loginUser } from '../api/AuthService.jsx';
 import '../styles/common-style.css';
 import {useNavigate} from "react-router-dom";
+import LVIcon from "../assets/icon-components/LVIcon.jsx";
 
 
 const LoginPage = () => {
@@ -23,6 +24,7 @@ const LoginPage = () => {
 
     return (
         <div className="login-box">
+            <LVIcon></LVIcon>
             <p>Login</p>
             <form onSubmit={handleLogin}>
                 <div className="user-box">

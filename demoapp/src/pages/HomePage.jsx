@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { updateUserLikedPosts, getUserLikedPosts } from "../api/UserService.jsx";
 import NavigationButton from "../components/NavigationButton.jsx";
 import PostCard from "../components/PostCard.jsx";
+import LVIcon from "../assets/icon-components/LVIcon.jsx";
 
 const HomePage = () => {
     const [posts, setPosts] = useState([]);
@@ -86,48 +87,47 @@ const HomePage = () => {
             {error && <p className="error-message">{error}</p>}
 
             {/* Search Bar */}
-            <div className="search-bar">
-                <input
-                    type="text"
-                    placeholder="Search posts..."
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                />
-            </div>
-
-            {/* Posts Container */}
-            <div className="posts-container">
-                {filteredPosts.length > 0 ? (
-                    filteredPosts.map((post) => (
-                        <PostCard
-                            key={post.id}
-                            post={post}
-                            likedPostIds={likedPostIds}
-                            handlePostClick={handlePostClick}
-                            handlePostLike={handlePostLike}
-                        />
-                    ))
-                ) : (
-                    <p>No posts available</p>
+                <div className="search-bar">
+                    <input
+                        type="text"
+                        placeholder="Search posts..."
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                    />
+                </div>
+                {/* Profile Navigation Button */}
+                {username && (
+                    <NavigationButton
+                        to={`/users/${username}/profile`}
+                        label="My Profile"
+                        className="profile-button"
+                    />
                 )}
+
+                {/* Posts Container */}
+                <div className="posts-container">
+                    {filteredPosts.length > 0 ? (
+                        filteredPosts.map((post) => (
+                            <PostCard
+                                key={post.id}
+                                post={post}
+                                likedPostIds={likedPostIds}
+                                handlePostClick={handlePostClick}
+                                handlePostLike={handlePostLike}
+                            />
+                        ))
+                    ) : (
+                        <p>No posts available</p>
+                    )}
+                </div>
+
+                {/* Create Post Button */}
+                <button className="plus-button" onClick={handlePostCreation}>
+                    <div className="plus-button-sign">+</div>
+                    <div className="plus-button-text">Create</div>
+                </button>
             </div>
+            );
+            };
 
-            {/* Create Post Button */}
-            <button className="plus-button" onClick={handlePostCreation}>
-                <div className="plus-button-sign">+</div>
-                <div className="plus-button-text">Create</div>
-            </button>
-
-            {/* Profile Navigation Button */}
-            {username && (
-                <NavigationButton
-                    to={`/users/${username}/profile`}
-                    label="My Profile"
-                    className="profile-button"
-                />
-            )}
-        </div>
-    );
-};
-
-export default HomePage;
+            export default HomePage;

@@ -23,7 +23,6 @@ export const fetchUserProfile = async (username) => {
     }
 };
 
-
 export const updateUserProfile = async (username, userData) => {
     const token = localStorage.getItem('JWTAuthToken');
     if (!token || !username) {

@@ -10,13 +10,23 @@ input:-webkit-autofill:active {
 
 /* Global Styles */
 body {
-    background: linear-gradient(63deg, #e6c90a, #d18a10, #d1b21a);
+    background: -webkit-linear-gradient(316deg, #c47d03,#bb9407,#b8780a,#944700,#c29800);/* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(316deg, #c47d03,#bb9407,#b8780a,#944700,#c29800);/* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
     background-attachment: fixed; /* Makes the background fixed while scrolling */
     background-size: 100% 100%; /* Ensures the background covers the entire screen */
     background-repeat: no-repeat;
     height: auto; /* Ensures the background is always visible and expands with content */
     margin: 0; /* Removes default margin */
     padding: 10px;
+}
+
+.main-logo {
+    width: 95px;
+    height: auto;
+    rotate: -90deg;
+    position: absolute;  /* Allows precise positioning */
+    top: 10px;  /* Distance from the top */
+    left: 10px;  /* Distance from the left */
 }
 
 /* Login Page */
@@ -164,8 +174,8 @@ body {
 
 /* Welcome Page */
 .welcome-page{
-    width: 99vw;
-    height: 98.2vh;
+    width: 98vw;
+    height: 95vh;
     color: white;
     display: flex;
     flex-direction: row;
@@ -262,34 +272,38 @@ body {
     flex-direction: column;
     width: 50%;
     height: auto;
-    gap: 10rem;
 }
 .info-cards .box{
+    box-shadow: rgba(0, 0, 0, 0.25) 0 8px 15px;
     position: absolute;
     width: 370px;
     height: 150px;
     font-size: 1.1rem;
     background-color: rgba(30,27,22,255);
-    border-radius: 10px;
+    border-radius: 17px;
     text-align: center;
     border: 5px solid rgba(212,146,15,255);
     padding: 20px;
 }
 .info-cards .box1{
-    top:5%;
+    top:7%;
     transform: rotate(-10deg);
 }
 .info-cards .box2{
-    right:5%;
+    right:8%;
     top:40%;
     transform: rotate(0deg);
 }
 .info-cards .box3{
-    top:70%;
+    top:69%;
     transform: rotate(7deg);
 }
 
-.welcome-page .login-button {
+.welcome-page .navigation-button, .profile-button {
+    position: fixed;
+    top: 20px; /* Distance from the top */
+    right: 20px; /* Distance from the right */
+    z-index: 1000;
     appearance: none;
     background-color: transparent;
     border: 2px solid #1A1A1A;
@@ -301,23 +315,24 @@ body {
     font-size: 16px;
     font-weight: 600;
     min-height: 60px;
+    width: 130px;
     padding: 12px 20px;
     text-align: center;
     transition: all 340ms;
     user-select: none;
     -webkit-user-select: none;
     touch-action: manipulation;
-    width: 100%;
     will-change: transform;
 }
-.welcome-page .login-button:hover {
+
+.welcome-page .navigation-button:hover, .profile-button:hover {
     color: #fff;
     background-color: #1A1A1A;
     box-shadow: rgba(0, 0, 0, 0.25) 0 8px 15px;
     transform: translateY(-2px);
 }
 
-.welcome-page .login-button:active {
+.welcome-page .navigation-button:active, .profile-button:active {
     box-shadow: none;
     transform: translateY(0);
 }
@@ -334,17 +349,19 @@ body {
 
 .dashboard .posts-container {
     display: grid;
-    grid-template-columns: repeat(5, 1fr); /* 4 posts per row */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Dynamic columns */
     gap: 20px;
-    padding: 70px 20px 20px 20px;
+    padding: 2% 70px;
     width: 100%;
     box-sizing: border-box;
+    justify-content: center;
 }
 
 .dashboard .post-card {
-    width: 250px; /* Fixed width */
-    height: 220px; /* Fixed height for rectangle shape */
+    width: 280px; /* Fixed width */
+    height: 300px; /* Fixed height for rectangle shape */
     padding: 15px;
+    margin: auto;
     background-color: rgba(30,27,22,255);
     color: white;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -369,14 +386,8 @@ body {
     margin: 0;
 }
 
-.dashboard .post-card p {
-    margin: 5px 0;
-}
-
 /* Like Button */
-
 /* From Uiverse.io by KSAplay */
-
 .dashboard .post-card .container {
     display: block;
     position: absolute;
@@ -386,6 +397,7 @@ body {
     user-select: none;
     transition: 100ms;
 }
+
 .dashboard .post-card .container input {
     position: absolute;
     opacity: 0;
@@ -449,7 +461,6 @@ body {
     display: flex;
     justify-content: center;
     margin-top: 10px;
-    margin-bottom: 30px;
     width: 30%;
 }
 
@@ -478,34 +489,11 @@ body {
     }
 }
 
-
-/* My Profile Button Styling */
-.profile-button {
-    position: fixed; /* Always stays in place */
-    top: 20px; /* Distance from the top */
-    right: 20px; /* Distance from the right */
-    z-index: 1000; /* Ensure it stays on top */
-    padding: 10px 20px;
-    font-size: 16px;
-    font-weight: bold;
-    color: white;
-    background-color: rgba(30,27,22,255);
-    border: none;
-    border-radius: 10px;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.profile-button:hover {
-    background-color: rgb(43, 37, 32);
-}
-
 /* From Uiverse.io by Yaya12085 */
 .plus-button {
     position: fixed;
     bottom: 20px;
-    right: 20px;
+    right: 13px;
     z-index: 1000;
     padding: 10px;
     width: 60px;
@@ -667,15 +655,17 @@ body {
     text-decoration: none;
     border-radius: 8px;
     font-weight: bold;
-    transition: background 0.3s;
     width: 200px;
 
+    transition: background 0.3s ease, transform 0.2s ease;
     box-shadow: 0 15px 25px rgba(0, 0, 0, 0.6);
 }
 
 .navigation-button:hover {
-    background: goldenrod;
+    background: #d18a10;
+    transform: translateY(-2px);
 }
+
 
 /* Responsive Design */
 @media (max-width: 768px) {
@@ -703,49 +693,72 @@ body {
 /* ----- Post Details Page ------ */
 .post-details {
     width: 95%;
-    margin: 30px;
+    margin: auto;
     background: transparent;
     color: white;
     font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+}
 
+/* Main container for both user and post details */
+.post-container {
+    display: flex;
+    gap: 40px;
+    width: 100%;
+    max-width: 1200px;
+}
+
+/* User Information Box */
+.user-information,
+.post-information {
+    width: 50%;
+    padding: 30px;
+    background: rgba(0, 0, 0, 0.9);
+    border-radius: 15px;
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.6);
     display: flex;
     flex-direction: column;
+    gap: 20px;
 }
 
 /* Post Title */
-.post-details h1 {
-    font-size: 3rem;
+.post-information h1 {
+    font-size: 2.5rem;
     color: goldenrod;
-    text-align: center;
-    position: relative;
-    margin-bottom: 20px;
 }
 
 /* Post Description */
-.post-details p {
+.post-information p {
     font-size: 1.2rem;
     line-height: 1.6;
-    margin: 20px 0;
 }
 
-/* Input & Textarea (Edit Mode) */
-.post-details input,
-.post-details textarea {
-    width: 100%;
+/* Input Fields */
+.post-information input,
+.post-information textarea {
+    width: 90%;
+    height: auto;
     padding: 12px;
-    margin: 10px 0;
     background: rgba(30, 27, 22, 0.9);
     border: 2px solid goldenrod;
+    margin-top: 10px;
+    margin-bottom: 10px;
     border-radius: 10px;
     color: white;
-    font-size: 1rem;
+    font-size: 1.2rem;
     resize: none;
 }
+
+.post-information textarea {
+    min-height: 200px;
+}
+
 
 /* Buttons */
 .post-details button {
     padding: 12px 24px;
-    margin: 10px 10px 0 0;
+    margin-top: 10px;
     background: goldenrod;
     color: black;
     border: none;
@@ -753,65 +766,12 @@ body {
     font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
-    height: 60px;
-    width: 200px;
     transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .post-details button:hover {
     background: #d18a10;
     transform: translateY(-2px);
-}
-
-/* Published Date */
-.post-details strong {
-    color: goldenrod;
-}
-
-/* Loading & Error Messages */
-.post-details .loading,
-.post-details .error {
-    text-align: center;
-    font-size: 1.5rem;
-    margin-top: 50px;
-    color: #ff4d4d;
-}
-
-.foreign-post{
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    background: transparent;
-    color: white;
-    height: auto;
-    display: flex;
-    flex-direction: row;
-    gap: 50px;
-}
-
-/* (Post Details) Post Information */
-
-.post-information{
-    width: 45%;
-    padding: 30px;
-    display: flex;
-    height: auto;
-    flex-direction: column;
-    background: rgba(0, 0, 0, 0.9);
-    border-radius: 15px;
-    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.6);
-}
-
-/* (Post Details) User Information*/
-.user-information{
-    width: 45%;
-    padding: 30px;
-    display: flex;
-    height: auto;
-    flex-direction: column;
-    background: rgba(0, 0, 0, 0.9);
-    border-radius: 15px;
-    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.6);
 }
 .contact-list {
     list-style: none;

@@ -2,14 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import NavigationButton from "../../components/NavigationButton.jsx";
 import { fetchUserProfile, updateUserProfile, getUserLikedPosts } from "../../api/UserService.jsx";
-import { fetchSkills } from "../../api/SkillService.jsx";
 
 const ProfilePage = () => {
     const { username } = useParams();
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
-    const [skills, setSkills] = useState([]);
-    const [selectedSkills, setSelectedSkills] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({ bio: "", skills: [] });
     const [likedPosts, setLikedPosts] = useState([]);
@@ -20,24 +17,15 @@ const ProfilePage = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const allSkills = await fetchSkills();
-                setSkills(allSkills);
 
                 const userProfile = await fetchUserProfile(username);
 
-                const userSkills = userProfile.skills.map(skillId => {
-                    const skill = allSkills.find(s => Number(s.id) === Number(skillId));
-                    return skill || { id: skillId, skillName: "Unknown Skill" };
-                });
-
                 setUser({
                     ...userProfile,
-                    skills: userSkills,
                 });
 
                 setFormData({
                     bio: userProfile.bio || "",
-                    skills: userProfile.skills || [],
                 });
 
                 if (username === loggedInUsername) {
@@ -45,11 +33,9 @@ const ProfilePage = () => {
                     setLikedPosts(likedPostsData);
                 }
 
-                setSelectedSkills(userProfile.skills);
                 setLoading(false);
             } catch (err) {
                 console.error("Error fetching data:", err);
-                setError("Failed to fetch profile or skills.");
                 setLoading(false);
             }
         };
@@ -64,11 +50,6 @@ const ProfilePage = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSkillChange = (e) => {
-        const selectedOptions = [...e.target.selectedOptions].map(option => Number(option.value));
-        setSelectedSkills(selectedOptions);
-    };
-
     const handleProfileUpdate = async () => {
         try {
             await updateUserProfile(username, { bio: formData.bio, skills: selectedSkills });
@@ -76,7 +57,6 @@ const ProfilePage = () => {
             setUser(prevUser => ({
                 ...prevUser,
                 bio: formData.bio,
-                skills: skills.filter(skill => selectedSkills.includes(skill.id)),
             }));
 
             setIsEditing(false);
@@ -104,18 +84,6 @@ const ProfilePage = () => {
                                 className="bio-input"
                             />
                         </label>
-                        <label>Skills:
-                            <select
-                                multiple
-                                value={selectedSkills}
-                                onChange={handleSkillChange}
-                                className="skill-dropdown"
-                            >
-                                {skills.map(skill => (
-                                    <option key={skill.id} value={skill.id}>{skill.skillName}</option>
-                                ))}
-                            </select>
-                        </label>
                     </form>
                     <button onClick={handleProfileUpdate} className="form-button">Save Changes</button>
                     <button onClick={() => setIsEditing(false)} className="form-button">Cancel</button>
@@ -125,8 +93,6 @@ const ProfilePage = () => {
                     <h1>{user?.username}</h1>
                     <p><strong>Email:</strong> {user?.email}</p>
                     <p><strong>Bio:</strong> {user?.bio}</p>
-                    <p><strong>Skills:</strong> {user?.skills.map(skill => skill.skillName).join(", ") || "No skills added yet"}</p>
-
                     {loggedInUsername === username && (
                         <button onClick={() => setIsEditing(true)} className="form-button">Edit Profile</button>
                     )}
