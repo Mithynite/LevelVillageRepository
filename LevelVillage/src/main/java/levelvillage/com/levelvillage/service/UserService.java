@@ -1,12 +1,8 @@
 package levelvillage.com.levelvillage.service;
 
 import levelvillage.com.levelvillage.dto.UserDTO;
-import levelvillage.com.levelvillage.model.Skill;
-import levelvillage.com.levelvillage.model.User;
-import levelvillage.com.levelvillage.model.UserSkill;
-import levelvillage.com.levelvillage.repository.SkillRepository;
-import levelvillage.com.levelvillage.repository.UserRepository;
-import levelvillage.com.levelvillage.repository.UserSkillRepository;
+import levelvillage.com.levelvillage.model.*;
+import levelvillage.com.levelvillage.repository.*;
 import levelvillage.com.levelvillage.util.JWTTokenUtil;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -22,17 +18,19 @@ import java.util.stream.Collectors;
 @Service
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
+    private final PostRepository postRepository;
     private final SkillRepository skillRepository;
-    private final UserSkillRepository userSkillsRepository;
+    private final UserLikedPostRepository userLikedPostRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JWTTokenUtil jwtTokenUtil;
 
-    public UserService(UserRepository userRepository, SkillRepository skillRepository, UserSkillRepository userSkillsRepository, JWTTokenUtil jwtTokenUtil) {
+    public UserService(UserRepository userRepository, SkillRepository skillRepository, UserLikedPostRepository userLikedPostRepository, JWTTokenUtil jwtTokenUtil, PostRepository postRepository) {
         this.userRepository = userRepository;
         this.skillRepository = skillRepository;
-        this.userSkillsRepository = userSkillsRepository;
+        this.userLikedPostRepository = userLikedPostRepository;
         this.jwtTokenUtil = jwtTokenUtil;
         this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        this.postRepository = postRepository;
     }
 
     @Override
@@ -99,47 +97,45 @@ public class UserService implements UserDetailsService {
             user.setBio(userDTO.getBio());
         }
 
-        // Handling skills update
-        if (userDTO.getSkills() != null && !userDTO.getSkills().isEmpty()) {
-            userSkillsRepository.deleteByUserId(user.getId()); // Clear previous skills
-
-            // Map skill IDs to Skill entities
-            List<UserSkill> userSkills = userDTO.getSkills().stream()
-                    .map(skillId -> {
-                        Skill skill = skillRepository.findById(skillId)
-                                .orElseThrow(() -> new IllegalArgumentException("Skill not found with ID: " + skillId));
-                        return new UserSkill(user, skill); // Create UserSkill entity
-                    })
-                    .collect(Collectors.toList());
-
-            userSkillsRepository.saveAll(userSkills); // Save new skills
-        }
-
         return userRepository.save(user); // Save the updated user profile
     }
 
-    public List<Skill> getUserSkills(Long userId) {
-        return userSkillsRepository.findByUserId(userId).stream()
-                .map(UserSkill::getSkill)  // ✅ Now correctly fetches the Skill entity
-                .collect(Collectors.toList());
-    }
-
-
-
-    public void assignSkillsToUser(Long userId, List<Long> skillIds) {
+    @Transactional
+    public void updateLikedPosts(Long userId, List<Long> newLikedPostIds) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found!"));
 
-        userSkillsRepository.deleteByUserId(userId);
+        // Get current liked posts
+        List<UserLikedPost> currentLikedPosts = userLikedPostRepository.findByUserId(user.getId());
 
-        List<UserSkill> userSkills = skillIds.stream()
-                .map(skillId -> {
-                    Skill skill = skillRepository.findById(skillId)
-                            .orElseThrow(() -> new IllegalArgumentException("Skill not found with ID: " + skillId));
-                    return new UserSkill(user, skill);
+        // Convert to a list of post IDs
+        List<Long> currentLikedPostIds = currentLikedPosts.stream()
+                .map(lp -> lp.getPost().getId())
+                .collect(Collectors.toList());
+
+        // Find posts to remove (unliked posts)
+        List<UserLikedPost> postsToRemove = currentLikedPosts.stream()
+                .filter(lp -> !newLikedPostIds.contains(lp.getPost().getId()))
+                .collect(Collectors.toList());
+
+        // Find posts to add (newly liked posts)
+        List<Long> postsToAdd = newLikedPostIds.stream()
+                .filter(id -> !currentLikedPostIds.contains(id))
+                .collect(Collectors.toList());
+
+        // Remove unliked posts
+        userLikedPostRepository.deleteAll(postsToRemove);
+
+        // Add new liked posts
+        List<UserLikedPost> newUserLikedPosts = postsToAdd.stream()
+                .map(postId -> {
+                    Post post = postRepository.findById(postId)
+                            .orElseThrow(() -> new IllegalArgumentException("Post with ID: " + postId + " not found!"));
+                    return new UserLikedPost(user, post);
                 }).collect(Collectors.toList());
 
-        userSkillsRepository.saveAll(userSkills);
+        userLikedPostRepository.saveAll(newUserLikedPosts);
     }
+
 }
 

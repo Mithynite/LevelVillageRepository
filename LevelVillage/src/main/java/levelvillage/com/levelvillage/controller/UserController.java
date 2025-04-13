@@ -1,6 +1,8 @@
 package levelvillage.com.levelvillage.controller;
 
+import levelvillage.com.levelvillage.dto.PostDTO;
 import levelvillage.com.levelvillage.dto.UserDTO;
+import levelvillage.com.levelvillage.model.Post;
 import levelvillage.com.levelvillage.model.Skill;
 import levelvillage.com.levelvillage.model.User;
 import levelvillage.com.levelvillage.service.UserService;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /*
 This class manages API requests for Login and Sign Up, and other user related stuff
@@ -84,9 +87,10 @@ public class UserController {
                 currentUser.getUsername(),
                 currentUser.getEmail(),
                 currentUser.getBio(),
-                currentUser.getLikedPosts(),
-                currentUser.getSavedPosts(),
-                currentUser.getSkills().stream().map(Skill::getId).toList()
+                currentUser.getDiscord(),
+                currentUser.getInstagram(),
+                currentUser.getLinkedin(),
+                currentUser.getLikedPosts().stream().map(Post::getId).toList()
         );
 
         return ResponseEntity.ok(userDTO);  // Return the requested user profile
@@ -118,39 +122,26 @@ public class UserController {
         }
     }
 
-    /*@PutMapping("users/{id}/profile")
-    public ResponseEntity<String> updateUserProfile(@AuthenticationPrincipal UserDetails userDetails, @RequestBody UserDTO userDTO) {
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You must be logged in to update your profile.");
+    // Update (just) user's liked posts
+    @PutMapping("users/{username}/liked-posts")
+    public ResponseEntity<String> updateUserLikedPosts(@PathVariable String username, @RequestBody List<Long> postIds) {
+        User currentUser = userService.findUserByUsername(username);
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-        // Ensure the user is trying to update their own profile
-        if (!userDetails.getUsername().equals(userDTO.getUsername())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You can only update your own profile.");
-        }
-
-        try {
-            userService.updateUserProfile(userDetails.getUsername(), userDTO);
-            return ResponseEntity.ok("User's profile updated successfully");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred while updating the profile.");
-        }
-    }*/
-
-    // Get user's skills
-    @GetMapping("users/{id}/skills")
-    public List<Skill> getUserSkills(@PathVariable Long id) {
-        return userService.getUserSkills(id);
+        userService.updateLikedPosts(currentUser.getId(), postIds);
+        return ResponseEntity.ok("User's liked posts updated successfully.");
     }
 
-    // Update user's skills
-    @PutMapping("users/{id}/skills")
-    public void updateUserSkills(@PathVariable Long id, @RequestBody List<Long> skillIds) {
-        userService.assignSkillsToUser(id, skillIds);
+    @GetMapping("users/{username}/liked-posts")
+    public ResponseEntity<List<PostDTO>> getUserLikedPosts(@PathVariable String username) {
+        User user = userService.findUserByUsername(username);
+        List<PostDTO> likedPosts = user.getLikedPosts().stream()
+                .map(PostDTO::new)
+                .collect(Collectors.toList());
+        System.out.println(likedPosts);
+        return ResponseEntity.ok(likedPosts);
     }
-
 }
 

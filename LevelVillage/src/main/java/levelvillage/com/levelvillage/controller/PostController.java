@@ -1,7 +1,7 @@
 package levelvillage.com.levelvillage.controller;
 
-import levelvillage.com.levelvillage.model.Post;
-import levelvillage.com.levelvillage.model.User;
+import levelvillage.com.levelvillage.dto.PostDTO;
+import levelvillage.com.levelvillage.model.*;
 import levelvillage.com.levelvillage.repository.UserRepository;
 import levelvillage.com.levelvillage.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,30 +17,25 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*", allowCredentials = "true") //TODO změnit
 public class PostController {
     private final PostService postService;
-    private final UserRepository userRepository;
 
     @Autowired
-    public PostController(PostService postService, UserRepository userRepository) {
+    public PostController(PostService postService) {
         this.postService = postService;
-        this.userRepository = userRepository;
     }
     // Get all posts
     @GetMapping
-    public List<Post> getAllPosts() {
+    public List<PostDTO> getAllPosts() {
         return postService.getAllPosts();
     }
 
     // Create a new post
     @PostMapping
-    public ResponseEntity<String> createPost(@RequestBody Post post) {
+    public ResponseEntity<String> createPost(@RequestBody PostDTO post) {
         try {
             if(post.getDescription().trim().isEmpty() || post.getTitle().trim().isEmpty()){
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Title and description cannot be empty!");
             }
-            String username = post.getUser().getUsername();
-            User user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            post.setUser(user);
+
             Post savedPost = postService.createPost(post);
             return ResponseEntity.ok("Post created successfully!");
         } catch (Exception e) {
@@ -50,8 +45,23 @@ public class PostController {
 
     // Get a post by ID
     @GetMapping("/{id}")
-    public Post getPostById(@PathVariable Long id) {
-        return postService.getPostById(id);
+    public ResponseEntity<PostDTO> getPostById(@PathVariable Long id) {
+
+        Post post = postService.getPostById(id);
+        if (post == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();  // Unauthorized if no user is logged in
+        }
+
+        PostDTO postDTO = new PostDTO(
+                post.getId(),
+                post.getUser().getUsername(),
+                post.getTitle(),
+                post.getDescription(),
+                post.getCreated_at(),
+                post.getSkills().stream().map(Skill::getId).toList()
+        );
+
+        return ResponseEntity.ok(postDTO); // Return DTO instead of full entity
     }
 
     @GetMapping("/{id}/check-ownership")
@@ -67,17 +77,16 @@ public class PostController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updatePost(@PathVariable Long id, @RequestBody Post updatedPost) {
+    public ResponseEntity<String> updatePost(@PathVariable Long id, @RequestBody PostDTO updatedPost) {
         if(updatedPost != null){
             try {
                 if(updatedPost.getDescription().trim().isEmpty() || updatedPost.getTitle().trim().isEmpty()){
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Title and description cannot be empty!");
                 }
-                Post postToEdit = postService.getPostById(id);
-                postToEdit.setTitle(updatedPost.getTitle());
-                postToEdit.setDescription(updatedPost.getDescription());
 
-                postService.updatePost(postToEdit);
+                updatedPost.setId(id);
+
+                postService.updatePost(updatedPost);
                 return ResponseEntity.ok("Post updated successfully");
             } catch (IllegalArgumentException e) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found!");

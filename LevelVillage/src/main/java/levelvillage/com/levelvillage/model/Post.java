@@ -1,10 +1,14 @@
 package levelvillage.com.levelvillage.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Setter
 @Getter
@@ -22,9 +26,18 @@ public class Post {
     @Column(updatable = false)
     private Date created_at;
 
+    @JsonBackReference // Prevents infinite recursion
     @ManyToOne
     @JoinColumn(name = "user_id", updatable = false) // FK column is non-updatable
     private User user;
+
+    @ManyToMany
+    @JoinTable(
+            name = "post_skill",
+            joinColumns = @JoinColumn(name = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "skill_id")
+    )
+    private List<Skill> skills = new ArrayList<>();
 
     public Post() {}
 
