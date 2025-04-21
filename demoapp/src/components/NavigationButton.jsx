@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-const NavigationButton = ({ to = "/home", label = "Return", className = ""}) => {
+const NavigationButton = ({ to = "/home", label = "Return", className = "", children }) => {
     const navigate = useNavigate();
 
     const handleClick = () => {
@@ -10,7 +10,7 @@ const NavigationButton = ({ to = "/home", label = "Return", className = ""}) => 
 
     return (
         <button onClick={handleClick} className={className}>
-            {label}
+            {children || label}
         </button>
     );
 };

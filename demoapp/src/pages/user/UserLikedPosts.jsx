@@ -5,7 +5,7 @@ import { updateUserLikedPosts, getUserLikedPosts } from "../../api/UserService.j
 import PostCard from "../../components/PostCard.jsx";
 import NavigationButton from "../../components/NavigationButton.jsx";
 
-const UserLikedPostsPage = () => {
+const UserLikedPosts = () => {
     const [likedPosts, setLikedPosts] = useState([]);
     const [likedPostIds, setLikedPostIds] = useState(new Set());
     const [error, setError] = useState(null);
@@ -111,4 +111,4 @@ const UserLikedPostsPage = () => {
     );
 };
 
-export default UserLikedPostsPage;
+export default UserLikedPosts;

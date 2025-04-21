@@ -5,7 +5,7 @@ import {registerUser} from "../api/AuthService.jsx";
 import NavigationButton from "../components/NavigationButton.jsx";
 import LVIcon from "../assets/icon-components/LVIcon.jsx";
 
-const WelcomePage = () => {
+const Welcome = () => {
     const navigate = useNavigate();
 
     const navigateToLoginPage= async () => {
@@ -46,4 +46,4 @@ const WelcomePage = () => {
     );
 };
 
-export default WelcomePage;
+export default Welcome;

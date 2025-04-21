@@ -5,7 +5,7 @@ import {useNavigate} from "react-router-dom";
 import LVIcon from "../assets/icon-components/LVIcon.jsx";
 
 
-const LoginPage = () => {
+const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
@@ -58,4 +58,4 @@ const LoginPage = () => {
 );
 };
 
-export default LoginPage;
+export default Login;

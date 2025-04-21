@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { registerUser } from '../api/AuthService.jsx';
 import '../styles/common-style.css';
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import NavigationButton from "../components/NavigationButton.jsx";
 
 const SignUpPage = () => {
@@ -9,13 +9,26 @@ const SignUpPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
-    const [errorMessage, setErrorMessage] = useState(''); // Error message state
+
+    const MAX_USERNAME_CHAR_LENGTH = 50;
 
     const handleSignUp = async (event) => {
         event.preventDefault();
 
-        // Password confirmation check
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (username.length > MAX_USERNAME_CHAR_LENGTH) {
+            setErrorMessage(`Username cannot exceed ${MAX_USERNAME_CHAR_LENGTH} characters.`);
+            return;
+        }
+
+        if (!emailRegex.test(email)) {
+            setErrorMessage('Please enter a valid email address.');
+            return;
+        }
+
         if (password !== confirmPassword) {
             setErrorMessage('Passwords do not match!');
             return;
@@ -23,8 +36,8 @@ const SignUpPage = () => {
 
         try {
             await registerUser({ username, email, password });
-            setErrorMessage(''); // Clear error message if any
-            navigate('/login'); // Redirect to the dashboard after signup
+            setErrorMessage('');
+            navigate('/login');
         } catch (error) {
             console.error('Signup failed:', error);
             setErrorMessage(
@@ -45,7 +58,12 @@ const SignUpPage = () => {
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         required
-                    /></div>
+                    />
+                    <small style={{ color: username.length > MAX_USERNAME_CHAR_LENGTH ? 'red' : 'gray' }}>
+                        {username.length}/{MAX_USERNAME_CHAR_LENGTH}
+                    </small>
+                </div>
+
                 <div className="user-box">
                     <input
                         placeholder="Email"
@@ -54,7 +72,9 @@ const SignUpPage = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                    /></div>
+                    />
+                </div>
+
                 <div className="user-box">
                     <input
                         placeholder="Password"
@@ -65,6 +85,7 @@ const SignUpPage = () => {
                         required
                     />
                 </div>
+
                 <div className="user-box">
                     <input
                         placeholder="Confirm password"
@@ -75,11 +96,13 @@ const SignUpPage = () => {
                         required
                     />
                 </div>
+
                 {errorMessage && (
                     <p style={{ color: 'red', fontSize: '0.9em', textAlign: 'center' }}>
                         {errorMessage}
                     </p>
                 )}
+
                 <button type="submit" className="btn">
                     Submit
                 </button>

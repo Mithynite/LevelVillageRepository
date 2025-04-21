@@ -1,8 +1,12 @@
 import PropTypes from "prop-types";
 
 const PostCard = ({ post, likedPostIds, handlePostClick, handlePostLike }) => {
-    // Check if the post ID is in the likedPostIds Set
     const isLiked = likedPostIds.has(post.id);
+    const truncateText = (text, maxLength = 200) => {
+        if (!text) return "";
+        return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+    };
+
     return (
         <div
             key={post.id}
@@ -16,7 +20,7 @@ const PostCard = ({ post, likedPostIds, handlePostClick, handlePostLike }) => {
             >
                 <input
                     type="checkbox"
-                    checked={isLiked} // Check if the post is liked
+                    checked={isLiked}
                     onChange={() => handlePostLike(post.id)}
                 />
                 <div className="checkmark">
@@ -37,9 +41,24 @@ const PostCard = ({ post, likedPostIds, handlePostClick, handlePostLike }) => {
             {/* Post Info */}
             <p>{post.username}</p>
             <h2>{post.title}</h2>
-            <p>{post.description}</p>
+            <p className="post-description">{truncateText(post.description)}</p>
+
+            {/* Skills */}
+            {post.skills && post.skills.length > 0 && (
+                <div className="post-skills">
+                    {post.skills.map(skill => (
+                        <span key={skill.id} className="skill-tag">
+                    {skill.skillName}
+                        </span>
+                    ))}
+                </div>
+            )}
+
             <small>
-                Created at: {new Date(post.createdAt).toLocaleString()}
+                {(() => {
+                    const date = new Date(post.createdAt);
+                    return `${date.getDate()}. ${date.getMonth() + 1}. ${date.getFullYear()}`;
+                })()}
             </small>
         </div>
     );
@@ -52,8 +71,14 @@ PostCard.propTypes = {
         title: PropTypes.string.isRequired,
         description: PropTypes.string.isRequired,
         createdAt: PropTypes.string.isRequired,
+        skills: PropTypes.arrayOf(
+            PropTypes.shape({
+                id: PropTypes.number,
+                skillName: PropTypes.string,
+            })
+        ),
     }).isRequired,
-    likedPostIds: PropTypes.instanceOf(Set).isRequired, // Expect Set of liked post IDs
+    likedPostIds: PropTypes.instanceOf(Set).isRequired,
     handlePostClick: PropTypes.func.isRequired,
     handlePostLike: PropTypes.func.isRequired,
 };

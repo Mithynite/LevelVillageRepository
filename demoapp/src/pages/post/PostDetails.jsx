@@ -3,8 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { deletePost, fetchPostById, updatePost } from "../../api/PostService.jsx";
 import { fetchUserProfile } from "../../api/UserService.jsx";
 import NavigationButton from "../../components/NavigationButton.jsx";
-import { FaDiscord, FaInstagram, FaLinkedin } from "react-icons/fa";
 import {fetchSkills} from "../../api/SkillService.jsx";
+import {sendChatRequest, chatRequestWasAlreadySent} from "../../api/ChatService.jsx";
+import Select from "react-select";
 
 const PostDetails = ({ isMyPost }) => {
     const { id } = useParams();
@@ -17,6 +18,11 @@ const PostDetails = ({ isMyPost }) => {
     const [error, setError] = useState(null);
     const [skills, setSkills] = useState([]);
     const [selectedSkills, setSelectedSkills] = useState([]);
+    const [chatSent, setChatSent] = useState(false);
+
+    const MAX_TITLE_CHAR_LENGTH = 50;
+    const MAX_DESCRIPTION_CHAR_LENGTH = 400;
+
 
     useEffect(() => {
         const fetchPost = async () => {
@@ -38,6 +44,8 @@ const PostDetails = ({ isMyPost }) => {
                 if (fetchedPost.username) {
                     fetchUserProfileData(fetchedPost.username);
                 }
+                const chatAlreadySent = await chatRequestWasAlreadySent(fetchedPost.username)
+                setChatSent(chatAlreadySent);
             } catch (err) {
                 console.error("Error fetching post:", err);
                 setError("Failed to fetch post data.");
@@ -48,7 +56,6 @@ const PostDetails = ({ isMyPost }) => {
 
         fetchPost();
     }, [id]);
-
 
     const fetchUserProfileData = async (username) => {
         try {
@@ -81,7 +88,6 @@ const PostDetails = ({ isMyPost }) => {
         }
     };
 
-
     const handlePostDelete = async () => {
         try {
             await deletePost(id);
@@ -92,98 +98,213 @@ const PostDetails = ({ isMyPost }) => {
         }
     };
 
+    const handleSayHello = async () => {
+        try {
+            const receiverUsername = post.username;
+
+            await sendChatRequest(receiverUsername, post.id);
+            setChatSent(true);
+        } catch (err) {
+            console.error("Failed to send functions request:", err);
+            alert("Could not send functions request.");
+        }
+    };
+
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error: {error}</p>;
 
     return (
         <div className="post-details">
-            <div className="post-container" style={{ justifyContent: isMyPost ? "center" : "flex-start" }}>
-                {!isMyPost && user && (
-                    <div className="user-information">
-                        <NavigationButton to="/home" label="Back to Home" className="navigation-button" />
-                        <h1>{user.username}</h1>
-                        <p>{user?.bio || "No bio available"}</p>
-                        <div className="contact-info">
-                            <h3>Contact:</h3>
-                            <ul className="contact-list">
-                                {user.discord && (
-                                    <li className="contact-item discord">
-                                        <FaDiscord className="contact-icon" /> <span>{user.discord}</span>
-                                    </li>
-                                )}
-                                {user.instagram && (
-                                    <li className="contact-item instagram">
-                                        <FaInstagram className="contact-icon" />
-                                        <a href={user.instagram} target="_blank" rel="noopener noreferrer">{user.instagram}</a>
-                                    </li>
-                                )}
-                                {user.linkedIn && (
-                                    <li className="contact-item linkedin">
-                                        <FaLinkedin className="contact-icon" />
-                                        <a href={user.linkedIn} target="_blank" rel="noopener noreferrer">LinkedIn</a>
-                                    </li>
-                                )}
-                            </ul>
-                        </div>
-                    </div>
-                )}
-
+            {!isMyPost ? (
                 <div className="post-information">
-                    {isMyPost && (
-                        <NavigationButton to="/home" label="Back to Home" className="navigation-button" />
-                    )}
-                    {isMyPost && isEditing ? (
-                        <div style={{display: "flex", flexDirection: "column", gap: "15px"}}>
-                            <input type="text" name="title" value={formData.title} onChange={handleInputChange}/>
-                            <textarea name="description" value={formData.description}
-                                      onChange={handleInputChange}></textarea>
+                    <NavigationButton to="/home" label="Back to Home" className="navigation-button"/>
 
-                            <label>
-                                Related Skills (select up to 5):
-                                <select
-                                    multiple
-                                    value={selectedSkills}
-                                    onChange={(e) => {
-                                        const selected = Array.from(e.target.selectedOptions, opt => Number(opt.value));
-                                        setSelectedSkills(selected);
-                                    }}
-                                    className="skill-dropdown"
-                                >
-                                    {skills.map(skill => (
-                                        <option key={skill.id} value={skill.id}>
-                                            {skill.skillName}
-                                        </option>
-                                    ))}
-                                </select>
-                            </label>
+                    <h1>{post.title}</h1>
+                    <p>{post.description}</p>
+                    <p>
+                        <strong>Skills:</strong>{" "}
+                        {post?.skills.length
+                            ? post.skills.map(skill => skill.skillName).join(", ")
+                            : "No skills added yet"}
+                    </p>
 
+                    <div className="other-user-box">
+                        <button
+                            className="say-hello-button"
+                            onClick={handleSayHello}
+                            disabled={chatSent}
+                        >
+                            {chatSent ? "Chat request Sent!" : "Say Hello 👋"}
+                        </button>
 
-                            <div style={{display: "flex", gap: "10px"}}>
-                                <button onClick={handlePostUpdate}>Save Changes</button>
-                                <button onClick={() => setIsEditing(false)}>Cancel</button>
-                            </div>
-                        </div>
-                    ) : (
-                        <div>
-                            <h1>{post.title}</h1>
-                            <p>{post.description}</p>
-                            <p>
-                                <strong>Skills:</strong>{" "}
-                                {post?.skills.length
-                                    ? post.skills.map(skill => skill.skillName).join(", ")
-                                    : "No skills added yet"}
-                            </p>
-                            {isMyPost && (
-                                <div style={{display: "flex", gap: "10px", marginTop: "10px"}}>
-                                <button onClick={() => setIsEditing(true)}>Edit</button>
-                                    <button onClick={handlePostDelete}>Delete</button>
-                                </div>
-                            )}
-                        </div>
-                    )}
+                        <NavigationButton
+                            to={`/users/${post.username}/profile`}
+                            label={`View ${post.username}'s Profile`}
+                            className="navigation-button"
+                        />
+                    </div>
+
                     <p><strong>Published on:</strong> {new Date(post.createdAt).toLocaleDateString()}</p>
                 </div>
-            </div>
+            ) : (
+                <div className="post-information" style={{justifyContent: "center"}}>
+                        <NavigationButton to="/home" label="Back to Home" className="navigation-button"/>
+
+                        {isEditing ? (
+                            <div style={{display: "flex", flexDirection: "column", gap: "20px", width: "100%", marginTop: "20px"}}>
+                                <div className="form-group">
+                                    <strong>Title:</strong>
+                                    <input
+                                        type="text"
+                                        name="title"
+                                        value={formData.title}
+                                        onChange={handleInputChange}
+                                    />
+                                    <small style={{color: formData.title.length > MAX_TITLE_CHAR_LENGTH ? 'red' : 'gray'}}>
+                                        {formData.title.length}/{MAX_TITLE_CHAR_LENGTH}
+                                    </small>
+                                </div>
+                                <div className="form-group">
+                                    <strong>Description:</strong>
+                                    <textarea
+                                        name="description"
+                                        value={formData.description}
+                                        onChange={handleInputChange}
+                                    />
+                                    <small
+                                        style={{color: formData.description.length > MAX_DESCRIPTION_CHAR_LENGTH ? 'red' : 'gray'}}>
+                                        {formData.description.length}/{MAX_DESCRIPTION_CHAR_LENGTH}
+                                    </small>
+                                </div>
+                                <div className="form-group" style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "flex-start",
+                                    gap: "0.5rem"
+                                }}>
+                                    <label htmlFor="edit-skills">Related Skills (select up to 5):</label>
+                                    <div style={{width: "100%"}}>
+                                        <Select
+                                            inputId="edit-skills"
+                                            isMulti
+                                            options={skills.map(skill => ({
+                                                value: skill.id,
+                                                label: skill.skillName,
+                                            }))}
+                                            value={skills
+                                                .filter(skill => selectedSkills.includes(skill.id))
+                                                .map(skill => ({value: skill.id, label: skill.skillName}))}
+                                            onChange={(selectedOptions) => {
+                                                if (selectedOptions.length <= 5) {
+                                                    setSelectedSkills(selectedOptions.map(option => option.value));
+                                                } else {
+                                                    alert("You can select up to 5 skills only.");
+                                                }
+                                            }}
+                                            classNamePrefix="react-select"
+                                            styles={{
+                                                control: (base) => ({
+                                                    ...base,
+                                                    backgroundColor: "rgba(30, 27, 22, 1)",
+                                                    border: "2px solid goldenrod",
+                                                    color: "white",
+                                                    borderRadius: "5px",
+                                                    padding: "5px",
+                                                    boxShadow: "none",
+                                                    "&:hover": {
+                                                        borderColor: "white",
+                                                    },
+                                                }),
+                                                menu: (base) => ({
+                                                    ...base,
+                                                    backgroundColor: "rgba(30, 27, 22, 1)",
+                                                    border: "1px solid goldenrod",
+                                                    zIndex: 20,
+                                                }),
+                                                option: (base, state) => ({
+                                                    ...base,
+                                                    backgroundColor: state.isFocused
+                                                        ? "rgba(255, 215, 0, 0.2)"
+                                                        : "rgba(30, 27, 22, 1)",
+                                                    color: state.isSelected ? "goldenrod" : "white",
+                                                    "&:hover": {
+                                                        backgroundColor: "rgba(255, 215, 0, 0.5)",
+                                                    },
+                                                }),
+                                                multiValue: (base) => ({
+                                                    ...base,
+                                                    backgroundColor: "goldenrod",
+                                                    color: "black",
+                                                    borderRadius: "4px",
+                                                }),
+                                                multiValueLabel: (base) => ({
+                                                    ...base,
+                                                    color: "black",
+                                                }),
+                                                multiValueRemove: (base) => ({
+                                                    ...base,
+                                                    color: "black",
+                                                    "&:hover": {
+                                                        backgroundColor: "rgba(255, 215, 0, 0.5)",
+                                                        color: "white",
+                                                    },
+                                                }),
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                                <div style={{display: "flex", gap: "10px"}}>
+                                    <button
+                                        onClick={handlePostUpdate}
+                                        disabled={
+                                            formData.title.length > MAX_TITLE_CHAR_LENGTH ||
+                                            formData.description.length > MAX_DESCRIPTION_CHAR_LENGTH
+                                        }
+                                        style={{
+                                            backgroundColor:
+                                                formData.title.length > MAX_TITLE_CHAR_LENGTH ||
+                                                formData.description.length > MAX_DESCRIPTION_CHAR_LENGTH
+                                                    ? 'gray'
+                                                    : '',
+                                            cursor:
+                                                formData.title.length > MAX_TITLE_CHAR_LENGTH ||
+                                                formData.description.length > MAX_DESCRIPTION_CHAR_LENGTH
+                                                    ? 'not-allowed'
+                                                    : ''
+                                        }}
+                                        className="form-button">
+                                        Save Changes
+                                    </button>
+
+                                    <button onClick={() => setIsEditing(false)} className="form-button">Cancel</button>
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                <h1>{post.title}</h1>
+                                <p>{post.description}</p>
+                                <p>
+                                    <strong>Skills:</strong>{" "}
+                                    {post?.skills.length
+                                        ? post.skills.map(skill => skill.skillName).join(", ")
+                                        : "No skills added yet"}
+                                </p>
+                                <p>
+                                    <strong>Published on:</strong>{"  "}
+                                    {(() => {
+                                        const date = new Date(post.createdAt);
+                                        return `${date.getDate()}. ${date.getMonth() + 1}. ${date.getFullYear()}`;
+                                    })()}
+                                </p>
+
+                                <div style={{display: "flex", gap: "10px", marginTop: "10px"}}>
+                                    <button onClick={() => setIsEditing(true)} className="form-button">Edit</button>
+                                    <button onClick={handlePostDelete} className="form-button">Delete</button>
+                                </div>
+                            </>
+                        )}
+                </div>
+            )}
         </div>
     );
 };
