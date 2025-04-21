@@ -32,6 +32,12 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+        // Exclude the /api/validate/** endpoint from token authentication
+        if (request.getRequestURI().startsWith("/api/validate/")) {
+            filterChain.doFilter(request, response); // Skip this filter and continue with the filter chain
+            return;
+        }
+
         final String authorizationHeader = request.getHeader("Authorization");
 
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
@@ -71,5 +77,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+
 
 }

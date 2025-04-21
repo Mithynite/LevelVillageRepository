@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import io.jsonwebtoken.*;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -32,6 +33,16 @@ public class UserService implements UserDetailsService {
         this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
         this.postRepository = postRepository;
     }
+
+    public boolean isTokenValid(String token) {
+        try {
+            String username = jwtTokenUtil.extractUsername(token);
+            return jwtTokenUtil.validateToken(token, username);
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -86,15 +97,17 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found!"));
 
-        // Update user information
-        if (userDTO.getUsername() != null) {
-            user.setUsername(userDTO.getUsername());
-        }
-        if (userDTO.getEmail() != null) {
-            user.setEmail(userDTO.getEmail());
-        }
         if (userDTO.getBio() != null) {
             user.setBio(userDTO.getBio());
+        }
+        if (userDTO.getDiscord() != null) {
+            user.setDiscord(userDTO.getDiscord());
+        }
+        if (userDTO.getInstagram() != null) {
+            user.setInstagram(userDTO.getInstagram());
+        }
+        if (userDTO.getLinkedIn() != null) {
+            user.setLinkedin(userDTO.getLinkedIn());
         }
 
         return userRepository.save(user); // Save the updated user profile

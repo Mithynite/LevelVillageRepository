@@ -73,7 +73,15 @@ public class PostService {
 
     // Get all posts
     public List<PostDTO> getAllPosts() {
-        return postRepository.findAllPostsAsDTO();
+        List<Post> posts = postRepository.findAll(); // Fetch full entity (not just DTOs)
+        return posts.stream().map(post -> new PostDTO(
+                post.getId(),
+                post.getUser().getUsername(),
+                post.getTitle(),
+                post.getDescription(),
+                post.getCreated_at(),
+                post.getSkills().stream().map(Skill::getId).toList()
+        )).toList();
     }
 
     // Get a specific post by ID

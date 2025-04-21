@@ -1,5 +1,6 @@
 package levelvillage.com.levelvillage.controller;
 
+import levelvillage.com.levelvillage.config.ConfigManager;
 import levelvillage.com.levelvillage.dto.PostDTO;
 import levelvillage.com.levelvillage.dto.UserDTO;
 import levelvillage.com.levelvillage.model.Post;
@@ -22,20 +23,37 @@ This class manages API requests for Login and Sign Up, and other user related st
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:5173") //TODO změnit
+@CrossOrigin(origins = "http://localhost:5173") // TODO změnit
 public class UserController {
+
     private final UserService userService;
+    private final int maxUsernameCharLength;
+    private final int maxUserBioCharLength;
 
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
+        this.maxUsernameCharLength = ConfigManager.maxUsernameCharLength;
+        this.maxUserBioCharLength = ConfigManager.maxUserBioCharLength;
     }
 
-    /**
-     * Endpoint to register a new user.
-     */
+    @GetMapping("/validate/{token}")
+    public ResponseEntity<String> validateUsersJWTToken(@PathVariable String token) {
+        try {
+            boolean valid = userService.isTokenValid(token);
+            return valid
+                    ? ResponseEntity.ok("Token is valid")
+                    : ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
+        }
+    }
+
     @PostMapping("/signup")
     public ResponseEntity<String> registerNewUser(@RequestBody User user) {
+        ResponseEntity<String> validation = validateUserInput(user.getUsername(), user.getBio());
+        if (validation != null) return validation;
+
         try {
             userService.registerUser(user.getUsername(), user.getEmail(), user.getPassword());
             return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully!");
@@ -51,19 +69,17 @@ public class UserController {
         try {
             User user = userService.findUserByUsername(userLoginRequest.getUsername());
             String token = userService.authenticateAndGenerateToken(userLoginRequest.getUsername(), userLoginRequest.getPassword());
-            long expirationTime = userService.getTokenExpiration(token); // Extract the expiration time from the token to later send it to Frontend
+            long expirationTime = userService.getTokenExpiration(token);
             return ResponseEntity.ok(Map.of(
                     "token", token,
-                    "expiration", expirationTime, // Return expiration time as timestamp
-                    "username", user.getUsername(), // Including the user's id so that he can use it to obtain certain info about his profile
+                    "expiration", expirationTime,
+                    "username", user.getUsername(),
                     "message", "Login successful"
             ));
         } catch (IllegalArgumentException e) {
-            // Return 401 for authentication errors
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         } catch (Exception e) {
-            // Catch any other unexpected errors
-            e.printStackTrace(); // Log the error for debugging
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
         }
     }
@@ -74,12 +90,12 @@ public class UserController {
             @AuthenticationPrincipal UserDetails userDetails) {
 
         if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();  // Unauthorized if no user is logged in
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         User currentUser = userService.findUserByUsername(username);
         if (currentUser == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();  // Return 404 if user is not found
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
         UserDTO userDTO = new UserDTO(
@@ -93,9 +109,9 @@ public class UserController {
                 currentUser.getLikedPosts().stream().map(Post::getId).toList()
         );
 
-        return ResponseEntity.ok(userDTO);  // Return the requested user profile
+        return ResponseEntity.ok(userDTO);
     }
-    
+
     @PutMapping("users/{username}/profile")
     public ResponseEntity<String> updateUserProfile(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -106,9 +122,15 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You must be logged in to update your profile.");
         }
 
-        // Ensure the user is only updating their own profile
         if (!userDetails.getUsername().equals(username)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You can only update your own profile.");
+        }
+
+        ResponseEntity<String> validation = validateUserInput(userDTO.getUsername(), userDTO.getBio());
+        if (validation != null) return validation;
+
+        if (!isContactInfoValid(userDTO)) {
+            return ResponseEntity.badRequest().body("Invalid contact information format.");
         }
 
         try {
@@ -122,7 +144,6 @@ public class UserController {
         }
     }
 
-    // Update (just) user's liked posts
     @PutMapping("users/{username}/liked-posts")
     public ResponseEntity<String> updateUserLikedPosts(@PathVariable String username, @RequestBody List<Long> postIds) {
         User currentUser = userService.findUserByUsername(username);
@@ -140,8 +161,30 @@ public class UserController {
         List<PostDTO> likedPosts = user.getLikedPosts().stream()
                 .map(PostDTO::new)
                 .collect(Collectors.toList());
-        System.out.println(likedPosts);
         return ResponseEntity.ok(likedPosts);
     }
+
+   private ResponseEntity<String> validateUserInput(String username, String bio) {
+        if (username != null && username.length() > maxUsernameCharLength) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Username cannot exceed " + maxUsernameCharLength + " characters.");
+        }
+        if (bio != null && bio.length() > maxUserBioCharLength) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Bio cannot exceed " + maxUserBioCharLength + " characters.");
+        }
+        return null;
+    }
+
+    private boolean isContactInfoValid(UserDTO userDTO) {
+        String discord = userDTO.getDiscord();
+        String instagram = userDTO.getInstagram();
+        String linkedIn = userDTO.getLinkedIn();
+
+        return (discord == null || discord.isBlank() || discord.matches("^.{3,32}#\\d{4}$")) &&
+                (instagram == null || instagram.isBlank() || instagram.matches("^https://(www\\.)?instagram\\.com/.*$")) &&
+                (linkedIn == null || linkedIn.isBlank() || linkedIn.matches("^https://(www\\.)?linkedin\\.com/.*$"));
+    }
 }
+
 

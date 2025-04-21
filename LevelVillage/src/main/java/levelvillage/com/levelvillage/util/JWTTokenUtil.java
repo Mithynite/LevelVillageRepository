@@ -3,16 +3,32 @@ package levelvillage.com.levelvillage.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import levelvillage.com.levelvillage.config.ConfigManager;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 
 @Component
 public class JWTTokenUtil {
-    private static final Key SECRET_KEY = Keys.secretKeyFor(io.jsonwebtoken.SignatureAlgorithm.HS256); // Generates new JWT token after each restart TODO (POZOR: Je potřeba se opětovně Loginout, aby frontend dostal nový klíč...)
-    private static final long EXPIRATION_TIME = 1000L * 60 * 60 * 60 * 10; // currently 10 hours until the expiration
+
+    private Key secretKey;
+    private static final long EXPIRATION_TIME = 1000L * 60 * 60 * 10; // 10 hours
+
+    @PostConstruct
+    public void init() {
+        String secret = ConfigManager.jwtSecret;
+
+        if (secret == null || secret.isBlank()) {
+            throw new IllegalArgumentException("JWT secret not configured in ConfigManager.");
+        }
+
+        byte[] decodedKey = Base64.getDecoder().decode(secret);
+        this.secretKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "HmacSHA256");
+    }
 
     // Generate token
     public String generateToken(String username) {
@@ -20,7 +36,7 @@ public class JWTTokenUtil {
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
 
@@ -28,9 +44,10 @@ public class JWTTokenUtil {
     public String extractUsername(String token) {
         return extractAllClaims(token).getSubject();
     }
+
     // Extract expiration time from the token
     public long extractExpiration(String token) {
-        return extractAllClaims(token).getExpiration().getTime(); // Returns expiration as timestamp
+        return extractAllClaims(token).getExpiration().getTime();
     }
 
     // Check if the token is expired
@@ -43,9 +60,10 @@ public class JWTTokenUtil {
         return username.equals(extractUsername(token)) && !isTokenExpired(token);
     }
 
+    // Extract claims from token
     private Claims extractAllClaims(String token) {
         return Jwts.parser()
-                .setSigningKey(SECRET_KEY)
+                .setSigningKey(secretKey)
                 .parseClaimsJws(token)
                 .getBody();
     }

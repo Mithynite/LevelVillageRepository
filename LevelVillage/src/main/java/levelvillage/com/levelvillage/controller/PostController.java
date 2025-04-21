@@ -1,5 +1,6 @@
 package levelvillage.com.levelvillage.controller;
 
+import levelvillage.com.levelvillage.config.ConfigManager;
 import levelvillage.com.levelvillage.dto.PostDTO;
 import levelvillage.com.levelvillage.model.*;
 import levelvillage.com.levelvillage.repository.UserRepository;
@@ -17,11 +18,33 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*", allowCredentials = "true") //TODO změnit
 public class PostController {
     private final PostService postService;
+    private final int maxPostTitleCharLength;
+    private final int maxPostDescriptionCharLength;
 
     @Autowired
     public PostController(PostService postService) {
         this.postService = postService;
+        this.maxPostTitleCharLength = ConfigManager.maxPostTitleCharLength;
+        this.maxPostDescriptionCharLength = ConfigManager.maxPostDescriptionCharLength;
     }
+
+    private ResponseEntity<String> validatePostInput(String title, String description) {
+        if (title == null || description == null || title.trim().isEmpty() || description.trim().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Title and description cannot be empty!");
+        }
+
+        if (title.trim().length() > maxPostTitleCharLength) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Title cannot exceed 100 characters.");
+        }
+
+        if (description.trim().length() > maxPostDescriptionCharLength) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Description cannot exceed 1000 characters.");
+        }
+
+        return null;
+    }
+
+
     // Get all posts
     @GetMapping
     public List<PostDTO> getAllPosts() {
@@ -32,9 +55,8 @@ public class PostController {
     @PostMapping
     public ResponseEntity<String> createPost(@RequestBody PostDTO post) {
         try {
-            if(post.getDescription().trim().isEmpty() || post.getTitle().trim().isEmpty()){
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Title and description cannot be empty!");
-            }
+            ResponseEntity<String> validationResponse = validatePostInput(post.getTitle(), post.getDescription());
+            if (validationResponse != null) return validationResponse;
 
             Post savedPost = postService.createPost(post);
             return ResponseEntity.ok("Post created successfully!");
@@ -78,24 +100,22 @@ public class PostController {
 
     @PutMapping("/{id}")
     public ResponseEntity<String> updatePost(@PathVariable Long id, @RequestBody PostDTO updatedPost) {
-        if(updatedPost != null){
-            try {
-                if(updatedPost.getDescription().trim().isEmpty() || updatedPost.getTitle().trim().isEmpty()){
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Title and description cannot be empty!");
-                }
-
-                updatedPost.setId(id);
-
-                postService.updatePost(updatedPost);
-                return ResponseEntity.ok("Post updated successfully");
-            } catch (IllegalArgumentException e) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found!");
-            } catch (Exception e) {
-                e.printStackTrace();
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the post!");
-            }
-        }else{
+        if (updatedPost == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Post data cannot be null!");
+        }
+
+        ResponseEntity<String> validationResponse = validatePostInput(updatedPost.getTitle(), updatedPost.getDescription());
+        if (validationResponse != null) return validationResponse;
+
+        try {
+            updatedPost.setId(id);
+            postService.updatePost(updatedPost);
+            return ResponseEntity.ok("Post updated successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the post!");
         }
     }
 
