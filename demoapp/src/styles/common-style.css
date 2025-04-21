@@ -10,14 +10,29 @@ input:-webkit-autofill:active {
 
 /* Global Styles */
 body {
-    background: -webkit-linear-gradient(316deg, #c47d03,#bb9407,#b8780a,#944700,#c29800);/* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient(316deg, #c47d03,#bb9407,#b8780a,#944700,#c29800);/* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    /*background: -webkit-linear-gradient(316deg, #c47d03, #bb9407, #b8780a, #944700, #c29800);
+    background: linear-gradient(316deg, #c47d03, #bb9407, #b8780a, #944700, #c29800);*/
+    background: linear-gradient(114deg, #7c5d18, #f37e07, #f3b207, #d89f08);
+    background-size: 240% 240%;
+    animation: gradient-animation 20s ease infinite;
     background-attachment: fixed; /* Makes the background fixed while scrolling */
-    background-size: 100% 100%; /* Ensures the background covers the entire screen */
     background-repeat: no-repeat;
     height: auto; /* Ensures the background is always visible and expands with content */
     margin: 0; /* Removes default margin */
     padding: 10px;
+}
+
+/* Keyframes for gradient animation */
+@keyframes gradient-animation {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 .main-logo {
@@ -44,8 +59,25 @@ body {
     border-radius: 10px;
 }
 
+.login-header{
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    text-align: center;
+    margin: 0 0 10px;
+}
+
+.login-header .main-logo {
+    width: 70px;
+    height: auto;
+    left: 80%;
+    top: 20px;
+    transform:rotate(90deg);
+}
+
 .login-box p:first-child {
-    margin: 0 0 30px;
     padding: 0;
     color: #fff;
     text-align: center;
@@ -121,6 +153,8 @@ body {
     color: #aaa;
 }
 
+/* ----- Welcome Page ------ */
+
 /* Button Styling (from Uiverse.io) */
 .btn {
     font-size: 20px;
@@ -173,7 +207,7 @@ body {
 }
 
 /* Welcome Page */
-.welcome-page{
+.welcome-page {
     width: 98vw;
     height: 95vh;
     color: white;
@@ -181,11 +215,13 @@ body {
     flex-direction: row;
 }
 
+
 .left-container {
     width: 50%;
     height: 100%;
     display: flex;
     flex-direction: column;
+    gap: 0;
     margin-top:auto;
     margin-bottom: auto;
     margin-right: auto;
@@ -194,24 +230,33 @@ body {
     align-items: center;
 }
 
-/* ----- Welcome Page ------ */
+.left-container p {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+.left-container h1 {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+}
 
 /* From Uiverse.io by Cornerstone-04 */
 .start-button-box {
-    width: 160px;
-    height: 25px;
+    width: 180px;
+    height: 33px;
     float: left;
     transition: .5s linear;
     position: relative;
     display: block;
     overflow: hidden;
-    padding: 15px;
+    padding: 12px;
     text-align: center;
+    justify-content: center;
     margin: 0 5px;
     background-color: rgba(30,27,22,255);
     text-transform: uppercase;
     font-weight: 900;
-    color: white;
+    font-size: 1.2rem;
+    color: goldenrod;
 }
 
 .start-button-box:before {
@@ -242,6 +287,7 @@ body {
 
 .start-button-box:hover {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    color: white;
 }
 
 .start-button-box:hover:before {
@@ -270,33 +316,110 @@ body {
 .info-cards{
     display: flex;
     flex-direction: column;
-    width: 50%;
+    width: 45%;
+    margin-left: 4%;
     height: auto;
 }
-.info-cards .box{
+
+.info-cards .box {
     box-shadow: rgba(0, 0, 0, 0.25) 0 8px 15px;
     position: absolute;
     width: 370px;
     height: 150px;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     background-color: rgba(30,27,22,255);
     border-radius: 17px;
     text-align: center;
     border: 5px solid rgba(212,146,15,255);
     padding: 20px;
+    transition: .3s transform linear, .3s height linear .3s;
+    cursor: pointer;
 }
+
+/* Keyframes for box1 */
+@keyframes float-box1 {
+    0%, 100% {
+        transform: translateY(0) rotate(-10deg);
+    }
+    50% {
+        transform: translateY(-12px) rotate(-8deg);
+    }
+}
+
+/* Keyframes for box2 */
+@keyframes float-box2 {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-8px) rotate(2deg);
+    }
+}
+
+/* Keyframes for box3 */
+@keyframes float-box3 {
+    0%, 100% {
+        transform: translateY(0) rotate(7deg);
+    }
+    50% {
+        transform: translateY(-10px) rotate(9deg);
+    }
+}
+
+/* Apply animations to each box */
+.info-cards .box1 {
+    animation: float-box1 6s ease-in-out infinite;
+}
+
+.info-cards .box2 {
+    animation: float-box2 6s ease-in-out infinite;
+}
+
+.info-cards .box3 {
+    animation: float-box3 6s ease-in-out infinite;
+}
+
+.info-cards .box:hover{
+    transform: translateY(-6px);
+    box-shadow: rgba(0, 0, 0, 0.25) 0 8px 15px;
+    border: 5px solid white;
+}
+
 .info-cards .box1{
-    top:7%;
+    left:20%;
+    top:8%;
     transform: rotate(-10deg);
 }
 .info-cards .box2{
-    right:8%;
     top:40%;
     transform: rotate(0deg);
 }
 .info-cards .box3{
-    top:69%;
+    left:20%;
+    top:70%;
     transform: rotate(7deg);
+}
+.info-cards .main-logo {
+    transform: rotate(90deg);
+    width: 150px;
+    position: absolute;
+    justify-self: center;
+    align-self: center;
+    top: 0;
+    bottom: 0;
+    right: 20%;
+    cursor: pointer;
+    animation: idle-rotate 10s ease-in-out infinite; /* Add slow idle animation */
+}
+
+/* Keyframes for idle rotation */
+@keyframes idle-rotate {
+    0%, 100% {
+        transform: rotate(84deg); /* Slightly to the left */
+    }
+    50% {
+        transform: rotate(96deg); /* Slightly to the right */
+    }
 }
 
 .welcome-page .navigation-button, .profile-button {
@@ -335,6 +458,77 @@ body {
 .welcome-page .navigation-button:active, .profile-button:active {
     box-shadow: none;
     transform: translateY(0);
+}
+
+/* Responsive Enhancements */
+@media (max-width: 1000px) {
+    .welcome-page {
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 20px;
+        height: auto;
+    }
+
+    .left-container {
+        width: 100%;
+        margin: 0 auto;
+        text-align: center;
+        padding: 20px 10px;
+    }
+    .left-container h1 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+
+    .info-cards {
+        width: 100%;
+        margin: 5px 0 0 0;
+        position: static;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .info-cards .box {
+        position: static;
+        width: 90%;
+        max-width: 400px;
+        transform: none !important;
+        margin-bottom: 20px;
+    }
+
+    .info-cards .main-logo {
+        width: 100px;
+        position: relative;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        margin: 0 auto 0 0;
+    }
+
+}
+
+@media (max-width: 600px) {
+    .start-button-box {
+        width: 100%;
+        font-size: 1rem;
+        padding: 10px;
+    }
+
+    .left-container h1 {
+        font-size: 1.5rem;
+    }
+
+    .left-container p {
+        font-size: 1.2rem;
+    }
+
+    .info-cards .box {
+        font-size: 1rem;
+        padding: 15px;
+    }
 }
 
 /* ----- Home Page ------ */
@@ -527,6 +721,12 @@ body {
     width: 97%;
 }
 
+.search-filter-container .main-logo {
+    right: 0;
+    left: 30px;
+    transform: rotate(90deg);
+}
+
 /* Search Bar */
 .search-bar {
     display: flex;
@@ -568,6 +768,7 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     color: white;
     font-family: 'Poppins', sans-serif;
+    min-width: 240px;
 }
 
 /* Filter Group */
@@ -577,7 +778,6 @@ body {
     align-items: center;
     gap: 10px;
     font-size: 1rem;
-    min-width: 200px;
 }
 
 .filter-group label {
@@ -585,25 +785,6 @@ body {
     color: goldenrod;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .filters-bar {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-    }
-
-    .filter-group {
-        width: 100%;
-    }
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .search-bar input {
-        width: 90%;
-    }
-}
 
 /* From Uiverse.io by Yaya12085 */
 .plus-button {
@@ -691,6 +872,59 @@ body {
     font-size: 1.2rem;
     margin: 10px 0;
     line-height: 1.6;
+}
+
+/* Responsive Enhancements */
+@media (max-width: 1000px) {
+    .filters-bar {
+        display: none;
+    }
+    .search-filter-container {
+        align-items: flex-start;
+        margin-bottom: 50px;
+    }
+
+    .search-filter-container .main-logo {
+        display: none;
+    }
+
+    .search-bar {
+        margin-left: 20px;
+    }
+
+}
+
+@media (max-width: 600px) {
+    .search-filter-container {
+        width: 190px;
+        height: 50px;
+        align-self: flex-start;
+        align-items: flex-start;
+        margin: 5px 0 50px 0;
+    }
+    .search-bar {
+        width: 100%;
+        height: 50px;
+        margin-left: 0;
+    }
+    .search-bar input {
+        height: 25px;
+    }
+
+    .profile-button {
+        width: 120px;
+        font-size: .9rem;
+        margin: 0;
+    }
+
+    .notification-icon {
+        width: 25px;
+        height: 25px;
+    }
+
+    .notification-badge {
+        font-size: 0.4rem;
+    }
 }
 
 /* Skills Section */
@@ -1037,7 +1271,7 @@ body {
     font-size: 1.2rem;
     color: white;
     text-align: left;
-    width: 100%;
+    width: 90%;
     max-width: 600px;
 }
 

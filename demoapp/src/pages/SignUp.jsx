@@ -3,6 +3,7 @@ import { registerUser } from '../api/AuthService.jsx';
 import '../styles/common-style.css';
 import { useNavigate } from "react-router-dom";
 import NavigationButton from "../components/NavigationButton.jsx";
+import LVIcon from "../assets/icon-components/LVIcon.jsx";
 
 const SignUpPage = () => {
     const [username, setUsername] = useState('');
@@ -48,7 +49,10 @@ const SignUpPage = () => {
 
     return (
         <div className="login-box">
-            <p>Sign Up</p>
+            <div className="login-header">
+                <p>Sign Up</p>
+                <LVIcon></LVIcon>
+            </div>
             <form onSubmit={handleSignUp}>
                 <div className="user-box">
                     <input
@@ -59,7 +63,7 @@ const SignUpPage = () => {
                         onChange={(e) => setUsername(e.target.value)}
                         required
                     />
-                    <small style={{ color: username.length > MAX_USERNAME_CHAR_LENGTH ? 'red' : 'gray' }}>
+                    <small style={{color: username.length > MAX_USERNAME_CHAR_LENGTH ? 'red' : 'gray'}}>
                         {username.length}/{MAX_USERNAME_CHAR_LENGTH}
                     </small>
                 </div>
@@ -98,7 +102,7 @@ const SignUpPage = () => {
                 </div>
 
                 {errorMessage && (
-                    <p style={{ color: 'red', fontSize: '0.9em', textAlign: 'center' }}>
+                    <p style={{color: 'red', fontSize: '0.9em', textAlign: 'center'}}>
                         {errorMessage}
                     </p>
                 )}

@@ -4,7 +4,6 @@ import '../styles/common-style.css';
 import {useNavigate} from "react-router-dom";
 import LVIcon from "../assets/icon-components/LVIcon.jsx";
 
-
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -24,8 +23,10 @@ const Login = () => {
 
     return (
         <div className="login-box">
-            <LVIcon></LVIcon>
-            <p>Login</p>
+            <div className="login-header">
+                <p>Login</p>
+                <LVIcon></LVIcon>
+            </div>
             <form onSubmit={handleLogin}>
                 <div className="user-box">
                     <input

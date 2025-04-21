@@ -1,24 +1,19 @@
 import React, { useState, useEffect } from "react";
-import "../styles/common-style.css";
-import { checkPostOwnership, getPosts } from "../api/PostService.jsx";
-import { useNavigate } from "react-router-dom";
-import { updateUserLikedPosts, getUserLikedPosts } from "../api/UserService.jsx";
-import NavigationButton from "../components/NavigationButton.jsx";
-import PostCard from "../components/PostCard.jsx";
-import LVIcon from "../assets/icon-components/LVIcon.jsx";
-import { getMyIncomingChatRequests } from "../api/ChatService.jsx";
-import { fetchSkills } from "../api/SkillService.jsx";
-import { FaBell } from "react-icons/fa";
-import PostSearchFilter from "../components/PostSearchFilter.jsx"; // Add this at the top
+import {useNavigate} from "react-router-dom";
+import {getUserLikedPosts, getUserPosts} from "../../api/UserService.jsx";
+import {fetchSkills} from "../../api/SkillService.jsx";
+import PostSearchFilter from "../../components/PostSearchFilter.jsx";
+import LVIcon from "../../assets/icon-components/LVIcon.jsx";
+import NavigationButton from "../../components/NavigationButton.jsx";
+import PostCard from "../../components/PostCard.jsx";
 
-const Home = () => {
+const UserPosts = () => {
     const [posts, setPosts] = useState([]);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState("");
     const [filteredPosts, setFilteredPosts] = useState([]);
     const [likedPostIds, setLikedPostIds] = useState(new Set());
-    const [chatRequests, setChatRequests] = useState([]);
 
     const [allSkills, setAllSkills] = useState([]);
     const [selectedSkills, setSelectedSkills] = useState([]);
@@ -30,20 +25,14 @@ const Home = () => {
     useEffect(() => {
         const fetchPostsAndSkills = async () => {
             try {
-                const [fetchedPosts, userLikedPosts, pendingRequests, allSkills] = await Promise.all([
-                    getPosts(),
+                const [fetchedPosts, userLikedPosts, allSkills] = await Promise.all([
+                    getUserPosts(),
                     getUserLikedPosts(),
-                    getMyIncomingChatRequests(),
                     fetchSkills(),
                 ]);
 
                 setAllSkills(allSkills); // Save all skills for the dropdown
-
-                // ✨ Exclude posts authored by the current user
-                const otherUsersPosts = fetchedPosts.filter(post => post.username !== username);
-
-                // Enrich posts with full skill objects
-                const enrichedPosts = otherUsersPosts.map(post => {
+                const enrichedPosts = fetchedPosts.map(post => {
                     const fullSkills = post.skills.map(skillId => {
                         const matched = allSkills.find(skill => Number(skill.id) === Number(skillId));
                         return matched || { id: skillId, skillName: "Unknown Skill" };
@@ -54,12 +43,12 @@ const Home = () => {
                 setPosts(enrichedPosts);
                 setFilteredPosts(enrichedPosts);
                 setLikedPostIds(new Set(userLikedPosts.map(post => post.id)));
-                setChatRequests(pendingRequests);
             } catch (err) {
                 console.error("Error fetching data:", err);
                 setError("Failed to fetch data. Please try again later.");
             }
         };
+
         fetchPostsAndSkills();
     }, []);
 
@@ -98,67 +87,37 @@ const Home = () => {
         setFilteredPosts(result);
     }, [searchQuery, selectedSkills, dateOrder, posts]);
 
-
     const handlePostClick = async (postId) => {
         try {
-            const ownershipStatus = await checkPostOwnership(postId);
-            navigate(ownershipStatus === "owner" ? `/myposts/${postId}` : `/posts/${postId}`);
+            navigate(`/myposts/${postId}`);
         } catch (error) {
             console.error("Failed to check ownership:", error);
             alert("An error occurred. Please try again later.");
         }
     };
 
-    const handlePostCreation = () => navigate("/posts/create");
-
-    const handlePostLike = async (postId) => {
-        try {
-            let updatedLikedPosts = new Set(likedPostIds);
-            if (updatedLikedPosts.has(postId)) {
-                updatedLikedPosts.delete(postId);
-            } else {
-                updatedLikedPosts.add(postId);
-            }
-            setLikedPostIds(new Set(updatedLikedPosts));
-            await updateUserLikedPosts(Array.from(updatedLikedPosts));
-        } catch (error) {
-            console.error("Failed to update liked posts:", error);
-            alert("An error occurred while updating likes.");
-        }
-    };
-
     return (
         <div className="dashboard">
+            {username && (
+                <NavigationButton
+                    to={`/users/${username}/profile`}
+                    label="Go back"
+                    className="profile-button"
+                />
+            )}
             {error && <p className="error-message">{error}</p>}
             <div className="search-filter-container">
-                    <LVIcon/>
-                    <PostSearchFilter
-                        searchQuery={searchQuery}
-                        onSearchChange={handleSearchChange}
-                        selectedSkills={selectedSkills}
-                        onSkillsChange={setSelectedSkills}
-                        dateOrder={dateOrder}
-                        onDateOrderChange={setDateOrder}
-                        allSkills={allSkills}
-                    />
+                <LVIcon/>
+                <PostSearchFilter
+                    searchQuery={searchQuery}
+                    onSearchChange={handleSearchChange}
+                    selectedSkills={selectedSkills}
+                    onSkillsChange={setSelectedSkills}
+                    dateOrder={dateOrder}
+                    onDateOrderChange={setDateOrder}
+                    allSkills={allSkills}
+                />
             </div>
-
-            <NavigationButton
-                to={`/users/${username}/profile`}
-                label="My Profile"
-                className="profile-button"
-            />
-
-            <NavigationButton
-                to={`/users/${username}/notifications`}
-                className="notification-icon-wrapper"
-                label=""
-            >
-                <FaBell size={28} className="notification-icon"/>
-                {chatRequests.length > 0 && (
-                    <span className="notification-badge">{chatRequests.length}</span>
-                )}
-            </NavigationButton>
 
             <div className="posts-container">
                 {filteredPosts.length > 0 ? (
@@ -168,20 +127,15 @@ const Home = () => {
                             post={post}
                             likedPostIds={likedPostIds}
                             handlePostClick={handlePostClick}
-                            handlePostLike={handlePostLike}
+                            showLikes={false}
                         />
                     ))
                 ) : (
                     <p>No posts available</p>
                 )}
             </div>
-
-            <button className="plus-button" onClick={handlePostCreation}>
-                <div className="plus-button-sign">+</div>
-                <div className="plus-button-text">Create</div>
-            </button>
         </div>
     );
 };
 
-export default Home;
+export default UserPosts;

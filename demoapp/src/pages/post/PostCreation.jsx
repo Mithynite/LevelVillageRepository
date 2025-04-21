@@ -195,7 +195,7 @@ const PostCreation = () => {
                     marginBottom: "1rem"
                 }}>
                     <label htmlFor="skills">Related Skills (select up to 5):</label>
-                    <div style={{width: "100%"}}>
+                    <div style={{width: "90%"}}>
                         <Select
                             inputId="skills"
                             isMulti

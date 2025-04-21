@@ -1,30 +1,21 @@
-import React, { useState } from 'react';
+import React from 'react';
 import '../styles/common-style.css';
 import {useNavigate} from "react-router-dom";
-import {registerUser} from "../api/AuthService.jsx";
 import NavigationButton from "../components/NavigationButton.jsx";
 import LVIcon from "../assets/icon-components/LVIcon.jsx";
 
 const Welcome = () => {
     const navigate = useNavigate();
 
-    const navigateToLoginPage= async () => {
-        navigate('/login');
+    const navigateToSignUpPage = () => {
+        navigate('/signup');
     };
+
     return (
         <div className="welcome-page">
-            <div className="left-container">
-                <LVIcon></LVIcon>
-                <h1>Welcome to Level Village!</h1>
-                <button>
-                        <span className="start-button-box">
-                            Start now
-                        </span>
-                </button>
-                <p>for free!</p>
-            </div>
 
             <div className="info-cards">
+                <LVIcon></LVIcon>
                 <div className="box box1">
                     <h2>Share your knowledge</h2>
                     <p>Teach everyone your unique skills and abilities. Collect positive feedback!</p>
@@ -38,10 +29,17 @@ const Welcome = () => {
                     <p>You will meet many inspiring people along the way. You may eventually become friends!</p>
                 </div>
             </div>
-            <div>
-                <NavigationButton to="/login" label="Login" className="navigation-button login-button"></NavigationButton>
-
+            <div className="left-container">
+                <h1>Welcome to Level Village!</h1>
+                <button onClick={navigateToSignUpPage}>
+                        <span className="start-button-box">
+                            Start now
+                        </span>
+                </button>
+                <p>for free!</p>
             </div>
+            <NavigationButton to="/login" label="Login"
+                            className="navigation-button login-button"></NavigationButton>
         </div>
     );
 };

@@ -218,14 +218,23 @@ const UserProfile = () => {
                         </ul>
                     </div>
 
-                    {loggedInUsername === username && (
-                        <div style={{display: "flex", gap: "10px", marginTop: "10px"}}>
-                            <button onClick={() => setIsEditing(true)} className="form-button">Edit Profile</button>
-                            <NavigationButton
-                                to={`/users/${username}/liked-posts`}
-                                label="View Liked Posts"
-                                className="form-button"
-                            />
+                    {(loggedInUsername === username || username) && (
+                        <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+                            {loggedInUsername === username && (
+                                <>
+                                    <button onClick={() => setIsEditing(true)} className="form-button">Edit Profile</button>
+                                    <NavigationButton
+                                        to={`/users/${username}/liked-posts`}
+                                        label="View Liked Posts"
+                                        className="form-button"
+                                    />
+                                    <NavigationButton
+                                        to={`/users/${username}/posts`}
+                                        label="View User's Posts"
+                                        className="form-button"
+                                    />
+                                </>
+                            )}
                         </div>
                     )}
                 </div>

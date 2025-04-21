@@ -9,6 +9,7 @@ import UserProfile from "./pages/user/UserProfile.jsx";
 import PostCreation from "./pages/post/PostCreation.jsx";
 import UserLikedPosts from "./pages/user/UserLikedPosts.jsx";
 import Notifications from "./pages/functions/Notifications.jsx";
+import UserPosts from "./pages/user/UserPosts.jsx";
 
 function App() {
     return (
@@ -24,6 +25,7 @@ function App() {
                 <Route path="/users/:username/profile" element={<UserProfile />} />
                 <Route path="/users/:username/liked-posts" element={<UserLikedPosts />} />
                 <Route path="/users/:username/notifications" element={<Notifications />} />
+                <Route path="/users/:username/posts" element={<UserPosts />} />
             </Route>
         </Routes>
     );

@@ -144,14 +144,20 @@ const PostDetails = ({ isMyPost }) => {
                         />
                     </div>
 
-                    <p><strong>Published on:</strong> {new Date(post.createdAt).toLocaleDateString()}</p>
+                    <p>
+                        <strong>Published on:</strong>{"  "}
+                        {(() => {
+                            const date = new Date(post.createdAt);
+                            return `${date.getDate()}. ${date.getMonth() + 1}. ${date.getFullYear()}`;
+                        })()}
+                    </p>
                 </div>
             ) : (
                 <div className="post-information" style={{justifyContent: "center"}}>
-                        <NavigationButton to="/home" label="Back to Home" className="navigation-button"/>
+                    <NavigationButton to="/home" label="Back to Home" className="navigation-button"/>
 
-                        {isEditing ? (
-                            <div style={{display: "flex", flexDirection: "column", gap: "20px", width: "100%", marginTop: "20px"}}>
+                    {isEditing ? (
+                        <div style={{display: "flex", flexDirection: "column", gap: "20px", width: "100%", marginTop: "20px"}}>
                                 <div className="form-group">
                                     <strong>Title:</strong>
                                     <input
