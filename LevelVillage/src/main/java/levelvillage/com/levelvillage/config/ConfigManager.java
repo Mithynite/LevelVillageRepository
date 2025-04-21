@@ -2,6 +2,10 @@ package levelvillage.com.levelvillage.config;
 
 import java.util.Properties;
 
+/**
+* Class which loads and interprets configurations to the rest of the classes.
+* @author Jakub Hofman
+*/
 public class ConfigManager {
     public static String configFilePath = "application.properties";
 

@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * Interface SkillRepository is used to interact with the MySQL database (as template)
+ * @author Jakub Hofman
  */
 public interface SkillRepository extends JpaRepository<Skill, Long> {
 }

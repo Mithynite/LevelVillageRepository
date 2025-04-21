@@ -7,6 +7,7 @@ import java.util.Optional;
 
 /**
  * Interface UserRepository is used to interact with the MySQL database (as template)
+ * @author Jakub Hofman
  */
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);

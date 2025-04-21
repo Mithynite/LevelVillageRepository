@@ -10,18 +10,31 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+
+/**
+ * Controller for handling skill-related requests.
+ * @author Jakub Hofman
+ */
 @RestController
 @RequestMapping("/api/skills")
 @CrossOrigin(origins = "http://localhost:5173") //TODO změnit
 public class SkillController {
     private final SkillService skillService;
 
+    /**
+     * Constructor for SkillController.
+     *
+     * @param skillService the service to handle skill-related operations
+     */
     public SkillController(SkillService skillService) {
         this.skillService = skillService;
     }
 
     /**
      * Endpoint to fetch all available skills.
+     *
+     * @return ResponseEntity containing a list of all available skills.
+     * The HTTP status code will be 200 (OK) if the request is successful.
      */
     @GetMapping
     public ResponseEntity<List<Skill>> getAllSkills() {

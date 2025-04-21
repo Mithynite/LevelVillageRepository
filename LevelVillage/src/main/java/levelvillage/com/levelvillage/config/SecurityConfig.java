@@ -13,6 +13,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * This class is responsible for configuring Spring Security for the LevelVillage application.
+ * It sets up authentication, authorization, and CSRF protection.
+ *
+ * @author Jakub Hofman
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -20,11 +26,24 @@ public class SecurityConfig {
     private final JWTAuthenticationFilter jwtAuthenticationFilter;
     private final UserService userService;
 
+    /**
+     * Constructor for SecurityConfig class.
+     *
+     * @param jwtAuthenticationFilter The JWTAuthenticationFilter instance to be used for authentication.
+     * @param userService The UserService instance to handle user-related operations.
+     */
     public SecurityConfig(JWTAuthenticationFilter jwtAuthenticationFilter, UserService userService) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.userService = userService;
     }
 
+    /**
+     * Configures the security filter chain for the application.
+     *
+     * @param http The HttpSecurity instance to configure security settings.
+     * @return The configured SecurityFilterChain.
+     * @throws Exception If an error occurs during security configuration.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -43,13 +62,22 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Configures the password encoder for user passwords.
+     *
+     * @return The configured PasswordEncoder instance.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     /**
-     * Define the AuthenticationManager as a bean explicitly to avoid conflicts.
+     * Defines the AuthenticationManager as a bean explicitly to avoid conflicts.
+     *
+     * @param configuration The AuthenticationConfiguration instance to retrieve the AuthenticationManager.
+     * @return The configured AuthenticationManager.
+     * @throws Exception If an error occurs during AuthenticationManager configuration.
      */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {

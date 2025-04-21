@@ -6,6 +6,11 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class represents a User's data transfer object (DTO). It is used to transfer user information between different layers of the application.
+ *
+ * @author Jakub Hofman
+ */
 @Setter
 @Getter
 public class UserDTO {
@@ -18,6 +23,18 @@ public class UserDTO {
     private String linkedIn;
     private List<Long> likedPosts = new ArrayList<>();
 
+    /**
+     * Constructs a new UserDTO object with the provided parameters.
+     *
+     * @param id The unique identifier of the user.
+     * @param username The username of the user.
+     * @param email The email address of the user.
+     * @param bio The biography of the user.
+     * @param discord The Discord username of the user.
+     * @param instagram The Instagram username of the user.
+     * @param linkedIn The LinkedIn profile URL of the user.
+     * @param likedPosts The list of post IDs that the user has liked.
+     */
     public UserDTO(Long id, String username, String email, String bio, String discord, String instagram, String linkedIn, List<Long> likedPosts) {
         this.username = username;
         this.email = email;

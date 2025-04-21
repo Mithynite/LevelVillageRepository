@@ -7,6 +7,10 @@ import levelvillage.com.levelvillage.model.Skill;
 
 import java.util.List;
 
+/**
+ * Service class for managing skills.
+ * @author Jakub Hofman
+ */
 @Service
 public class SkillService {
 
