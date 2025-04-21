@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://138.3.255.133:80") // TODO změnit
+@CrossOrigin(origins = "http://138.3.255.133") // TODO změnit
 public class UserController {
 
     private final UserService userService;

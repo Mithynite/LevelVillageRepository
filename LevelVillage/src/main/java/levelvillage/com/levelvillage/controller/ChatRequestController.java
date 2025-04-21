@@ -19,7 +19,7 @@ import java.util.List;
  * */
 @RestController
 @RequestMapping("/api/chat-requests")
-@CrossOrigin(origins = "http://138.3.255.133:80", allowedHeaders = "*", allowCredentials = "true") //TODO změnit
+@CrossOrigin(origins = "http://138.3.255.133", allowedHeaders = "*", allowCredentials = "true") //TODO změnit
 public class ChatRequestController {
 
     private final ChatRequestService chatRequestService;
