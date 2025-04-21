@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api/users';  // Path to the API
+const API_BASE_URL = '/api/users';  // Path to the API
 
 // Fetch the user's profile by username
 export const fetchUserProfile = async (username) => {

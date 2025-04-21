@@ -1,5 +1,5 @@
 import axios from "axios";
-const API_BASE_URL = 'http://localhost:8080/api/';  // Path to the API
+const API_BASE_URL = '/api';  // Path to the API
 
 export const sendChatRequest = async (receiverUsername, postId) => {
     const token = localStorage.getItem('JWTAuthToken');
@@ -10,7 +10,7 @@ export const sendChatRequest = async (receiverUsername, postId) => {
 
     try {
         const response = await axios.post(
-            `${API_BASE_URL}chat-requests/${receiverUsername}/posts/${postId}`,
+            `${API_BASE_URL}/chat-requests/${receiverUsername}/posts/${postId}`,
             null, // no request body
             {
                 headers: {
@@ -35,7 +35,7 @@ export const getMyIncomingChatRequests = async () => {
 
     try {
         const response = await axios.get(
-            `${API_BASE_URL}chat-requests`,
+            `${API_BASE_URL}/chat-requests`,
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -59,7 +59,7 @@ export const chatRequestWasAlreadySent = async (receiverUsername) => {
 
     try {
         const response = await axios.get(
-            `${API_BASE_URL}chat-requests/${receiverUsername}`,
+            `${API_BASE_URL}/chat-requests/${receiverUsername}`,
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -80,7 +80,7 @@ export const respondToChatRequest = async (requestId, accepted) => {
 
     try {
         const response = await axios.post(
-            `${API_BASE_URL}chat-requests/${requestId}/respond?response=${accepted}`,
+            `${API_BASE_URL}/chat-requests/${requestId}/respond?response=${accepted}`,
             {},
             {
                 headers: {

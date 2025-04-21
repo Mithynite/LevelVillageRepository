@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:8080/api/skills"; // Base path to Skill API
+const API_BASE_URL = "/api/skills"; // Base path to Skill API
 
 // Fetch all skills
 export const fetchSkills = async () => {

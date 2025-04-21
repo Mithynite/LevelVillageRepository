@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api/posts';
+const API_BASE_URL = '/api/posts';
 
 export const getPosts = async () => {
     const token = localStorage.getItem('JWTAuthToken');
